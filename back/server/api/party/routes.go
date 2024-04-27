@@ -1,28 +1,36 @@
 package party
 
 import (
+	"partymanager/server/auth"
+
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth"
 	"gorm.io/gorm"
 )
 
 type PartyRoutes struct {
 	Router *chi.Mux
-	DB		 *gorm.DB
+	DB     *gorm.DB
+	Auth   *auth.Auth
 }
 
 type PartyRoutesInterface interface {
 	SetupRoutes()
-	GetAllParties()
+
+	GetAllParty()
 	CreateParty()
 	GetParty()
 	UpdateParty()
 	DeleteParty()
 }
 
-func NewPartyRoutes(router *chi.Mux, db *gorm.DB) *PartyRoutes {
+func NewPartyRoutes(db *gorm.DB, auth *auth.Auth) *PartyRoutes {
+	router := chi.NewRouter()
+
 	routes := &PartyRoutes{
 		Router: router,
-		DB: db,
+		DB:     db,
+		Auth:   auth,
 	}
 
 	routes.SetupRoutes()
@@ -31,9 +39,11 @@ func NewPartyRoutes(router *chi.Mux, db *gorm.DB) *PartyRoutes {
 }
 
 func (ur *PartyRoutes) SetupRoutes() {
-	ur.Router.Get("/users", ur.GetAllParties)
-	ur.Router.Post("/users", ur.CreateParty)
-	ur.Router.Get("/users/{id}", ur.GetParty)
-	ur.Router.Put("/users/{id}", ur.UpdateParty)
-	ur.Router.Delete("/users/{id}", ur.DeleteParty)
+	ur.Router.Use(jwtauth.Verifier(ur.Auth.TokenAuth))
+
+	ur.Router.Get("/", ur.GetAllParty)
+	ur.Router.Post("/", ur.CreateParty)
+	ur.Router.Get("/{id}", ur.GetParty)
+	ur.Router.Put("/{id}", ur.UpdateParty)
+	ur.Router.Delete("/{id}", ur.DeleteParty)
 }

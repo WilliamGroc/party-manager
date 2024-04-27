@@ -2,8 +2,8 @@ package party
 
 import "net/http"
 
-func (ur *PartyRoutes) GetAllParties(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Get all parties"))
+func (ur *PartyRoutes) GetAllParty(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Get all party"))
 }
 
 func (ur *PartyRoutes) CreateParty(w http.ResponseWriter, r *http.Request) {
