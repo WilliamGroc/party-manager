@@ -55,8 +55,8 @@ func (ur *UserRoutes) GetMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
 	id, _ := token.Get("id")
+	var user models.User
 	ur.DB.First(&user, "id = ?", id)
 
 	api.EncodeBody(w, UserResponse{ID: user.ID, Username: user.Username, Email: user.Email})

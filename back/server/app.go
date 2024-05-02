@@ -13,7 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -30,7 +30,7 @@ type AppInterface interface {
 func (a *App) Run() {
 	// Database connection
 	uri := os.Getenv("DATABASE_URI")
-	db, err := gorm.Open(sqlite.Open(uri), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(uri), &gorm.Config{})
 
 	if err != nil {
 		panic("failed to connect database")
@@ -39,7 +39,7 @@ func (a *App) Run() {
 	a.DB = db
 
 	// Migrate the schema
-	db.AutoMigrate(&models.Guest{}, &models.Party{}, &models.User{})
+	db.AutoMigrate(&models.User{}, &models.Party{}, &models.Guest{})
 
 	// Router
 	a.Router = chi.NewRouter()
