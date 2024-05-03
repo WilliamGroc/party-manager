@@ -17,11 +17,10 @@ type GuestRoutes struct {
 type GuestRoutesInterface interface {
 	SetupRoutes()
 
-	GetAllGuest()
-	CreateGuest()
-	GetGuest()
+	GetAllGuestFromParty()
+	AddGuestToParty()
 	UpdateGuest()
-	DeleteGuest()
+	DeleteGuestFromParty()
 }
 
 func NewGuestRoutes(db *gorm.DB, auth *auth.Auth) *GuestRoutes {
@@ -40,9 +39,8 @@ func NewGuestRoutes(db *gorm.DB, auth *auth.Auth) *GuestRoutes {
 func (ur *GuestRoutes) SetupRoutes() {
 	ur.Router.Use(jwtauth.Verifier(ur.Auth.TokenAuth))
 
-	ur.Router.Get("/", ur.GetAllGuest)
-	ur.Router.Post("/", ur.CreateGuest)
-	ur.Router.Get("/{id}", ur.GetGuest)
+	ur.Router.Get("/party/{partyId}", ur.GetAllGuestFromParty)
+	ur.Router.Post("/party/{partyId}", ur.AddGuestToParty)
 	ur.Router.Put("/{id}", ur.UpdateGuest)
-	ur.Router.Delete("/{id}", ur.DeleteGuest)
+	ur.Router.Delete("/party/{partyId}/guest/{id}", ur.DeleteGuestFromParty)
 }

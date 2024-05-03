@@ -52,7 +52,7 @@ func (ur *PartyRoutes) CreateParty(w http.ResponseWriter, r *http.Request) {
 	var body CreatePartyRequest
 	api.DecodeBody(r, &body)
 
-	date, err := time.Parse("2006-01-02 03:04:05 -0700", body.Date)
+	date, err := time.Parse("2006-01-02 15:04:05 -0700", body.Date)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -99,7 +99,6 @@ func (ur *PartyRoutes) UpdateParty(w http.ResponseWriter, r *http.Request) {
 	partyId, _ := strconv.Atoi(id)
 
 	var party models.Party
-
 	ur.DB.Where(map[string]interface{}{"HostID": idInt, "ID": partyId}).First(&party)
 
 	if party.ID == 0 {
