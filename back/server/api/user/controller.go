@@ -5,6 +5,8 @@ import (
 	"partymanager/server/api"
 	"partymanager/server/auth"
 	"partymanager/server/models"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (ur *UserRoutes) Login(w http.ResponseWriter, r *http.Request) {
@@ -13,9 +15,9 @@ func (ur *UserRoutes) Login(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 
-	ur.DB.First(&user, "username = ? AND password = ?", body.Username, body.Password)
+	ur.DB.First(&user, "username = ?", body.Username)
 
-	if user.ID == 0 {
+	if user.ID == 0 || bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)) != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Unauthorized"))
 		return
@@ -40,7 +42,9 @@ func (ur *UserRoutes) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user = models.User{Username: body.Username, Password: body.Password, Email: body.Email}
+	hashed, _ := bcrypt.GenerateFromPassword([]byte(body.Password), 8)
+
+	user = models.User{Username: body.Username, Password: string(hashed), Email: body.Email}
 	ur.DB.Create(&user)
 
 	api.EncodeBody(w, UserResponse{ID: user.ID, Username: user.Username, Email: user.Email})

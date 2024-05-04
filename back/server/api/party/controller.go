@@ -65,7 +65,7 @@ func (ur *PartyRoutes) CreateParty(w http.ResponseWriter, r *http.Request) {
 		Description: body.Description,
 		Location:    body.Location,
 		Date:        date,
-		HostID:      idInt, // Use the converted integer value
+		HostID:      uint(idInt),
 	}
 
 	ur.DB.Create(&party)
@@ -153,7 +153,7 @@ func (ur *PartyRoutes) DeleteParty(w http.ResponseWriter, r *http.Request) {
 
 	var party models.Party
 	party.ID = uint(partyId)
-	party.HostID = idInt
+	party.HostID = uint(idInt)
 
 	ur.DB.First(&party)
 

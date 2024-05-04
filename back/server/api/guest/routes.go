@@ -41,6 +41,6 @@ func (ur *GuestRoutes) SetupRoutes() {
 
 	ur.Router.Get("/party/{partyId}", ur.GetAllGuestFromParty)
 	ur.Router.Post("/party/{partyId}", ur.AddGuestToParty)
-	ur.Router.Put("/{id}", ur.UpdateGuest)
-	ur.Router.Delete("/party/{partyId}/guest/{id}", ur.DeleteGuestFromParty)
+	ur.Router.Put("/{id}/party/{partyId}", ur.UpdateGuest)
+	ur.Router.Delete("/{id}/party/{partyId}", ur.DeleteGuestFromParty)
 }
