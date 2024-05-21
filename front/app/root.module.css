@@ -1,0 +1,32 @@
+.navbar-container {
+  background-color: #29AA7D;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  color: white;
+}
+
+.navbar {
+  display: flex;
+}
+
+.navbar>li {
+  margin-right: 4px;
+}
+
+.navbar>li>a {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.navbar>li>a:hover {
+  text-decoration: underline;
+}
+
+.navbar-title {
+  font-weight: bolder;
+}
+
+.body-container {
+  padding: 4px;
+}
