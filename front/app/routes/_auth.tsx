@@ -12,7 +12,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   console.log(session.get('token'))
 
   if (session.has("token"))
-    return redirect("/");
+    return redirect("/events");
 
   return null;
 }

@@ -2,7 +2,7 @@ import { ActionFunction, redirect } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import { css } from "styled-system/css";
 import { commitSession, getSession } from "~/session";
-import { http } from "~/utils/http";
+import { http, setAuthorizationToken } from "~/utils/http";
 
 export const action: ActionFunction = async ({ request }) => {
   const body = await request.formData();
@@ -27,7 +27,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   session.set("token", response.data.token);
 
-  return redirect("/", {
+  return redirect("/events", {
     headers: {
       "Set-Cookie": await commitSession(session),
     },

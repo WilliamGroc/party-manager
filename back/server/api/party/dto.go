@@ -7,6 +7,10 @@ type CreatePartyRequest struct {
 	Date        string `json:"date" validate:"required"`
 }
 
+type NewPartyResponse struct {
+	ID uint `json:"id"`
+}
+
 type PartyResponse struct {
 	ID          uint   `json:"id"`
 	Name        string `json:"name"`

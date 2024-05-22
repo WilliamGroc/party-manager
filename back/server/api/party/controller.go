@@ -28,7 +28,7 @@ func (ur *PartyRoutes) GetAllParty(w http.ResponseWriter, r *http.Request) {
 
 	ur.DB.Not("deleted_at IS NOT NULL").Where("host_id = ?", idInt).Find(&parties)
 
-	var response []PartyResponse
+	var response = []PartyResponse{}
 
 	for _, party := range parties {
 		response = append(response, PartyResponse{ID: party.ID, Name: party.Name, Description: party.Description, Location: party.Location, Date: party.Date.String(), HostID: party.HostID})
@@ -50,9 +50,16 @@ func (ur *PartyRoutes) CreateParty(w http.ResponseWriter, r *http.Request) {
 	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", id)) // Convert id to integer
 
 	var body CreatePartyRequest
-	api.DecodeBody(r, &body)
+	err = api.DecodeBody(r, &body)
 
-	date, err := time.Parse("2006-01-02 15:04:05 -0700", body.Date)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	date, err := time.Parse("2006-01-02T15:04", body.Date)
+	//date, err := time.Parse("2006-01-02 15:04:05 -0700", body.Date)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -70,7 +77,7 @@ func (ur *PartyRoutes) CreateParty(w http.ResponseWriter, r *http.Request) {
 
 	ur.DB.Create(&party)
 
-	api.EncodeBody(w, PartyResponse{ID: party.ID, Name: party.Name, Description: party.Description, Location: party.Location, Date: party.Date.String(), HostID: party.HostID})
+	api.EncodeBody(w, NewPartyResponse{ID: party.ID})
 }
 
 func (ur *PartyRoutes) GetParty(w http.ResponseWriter, r *http.Request) {

@@ -11,10 +11,11 @@ import {
 import panda from "./panda.css?url"
 import styles from "./styles.css?url"
 
-import { LinksFunction, LoaderFunction, LoaderFunctionArgs } from "@remix-run/node";
+import { LinksFunction, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 
 import rootStyle from './root.module.css';
 import { getSession } from "./session";
+import { setAuthorizationToken } from "./utils/http";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: panda },
@@ -22,12 +23,32 @@ export const links: LinksFunction = () => [
 ];
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  return { isAuthenticated: session.has('token') };
+  try {
+
+    const session = await getSession(request.headers.get("Cookie"));
+
+    const token = session.get('token');
+    console.log({ token })
+
+    if (token)
+      setAuthorizationToken(token);
+
+    return { isAuthenticated: !!token };
+  } catch (e) {
+    console.error(e);
+    return { isAuthenticated: false };
+  }
 }
 
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Party planner" },
+    { name: "description", content: "Welcome to Remix!" },
+  ];
+};
+
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useLoaderData<ReturnType<typeof loader>>();
+  const data = useLoaderData<ReturnType<typeof loader>>();
   return (
     <html lang="en">
       <head>
@@ -39,23 +60,30 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <nav className={rootStyle['navbar-container']}>
           <div>
-            <Link to="/" className={rootStyle['navbar-title']}>
+            <Link to="/events" className={rootStyle['navbar-title']}>
               Party planner
             </Link>
           </div>
 
           <ul className={rootStyle.navbar}>
-            {!isAuthenticated ? (
+            {!data?.isAuthenticated ? (
               <li>
                 <Link to="/login">
                   Authentication
                 </Link>
               </li>) : (
-              <li>
-                <Link to="/logout">
-                  Logout
-                </Link>
-              </li>
+              <>
+                <li>
+                  <Link to="/events">
+                    Events
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/logout">
+                    Logout
+                  </Link>
+                </li>
+              </>
             )
             }
           </ul>

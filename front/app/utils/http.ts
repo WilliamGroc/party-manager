@@ -6,3 +6,14 @@ export const http = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+export function setAuthorizationToken(token: string) {
+  http.interceptors.request.clear();
+  
+  http.interceptors.request.use((config) => {
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  });
+}
