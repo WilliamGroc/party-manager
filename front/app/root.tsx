@@ -5,21 +5,29 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
 
 import panda from "./panda.css?url"
 import styles from "./styles.css?url"
 
-import { LinksFunction } from "@remix-run/node";
+import { LinksFunction, LoaderFunction, LoaderFunctionArgs } from "@remix-run/node";
 
 import rootStyle from './root.module.css';
+import { getSession } from "./session";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: panda },
   { rel: "stylesheet", href: styles },
 ];
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  return { isAuthenticated: session.has('token') };
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useLoaderData<ReturnType<typeof loader>>();
   return (
     <html lang="en">
       <head>
@@ -35,12 +43,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
               Party planner
             </Link>
           </div>
+
           <ul className={rootStyle.navbar}>
-            <li>
-              <Link to="/login">
-                Authentication
-              </Link>
-            </li>
+            {!isAuthenticated ? (
+              <li>
+                <Link to="/login">
+                  Authentication
+                </Link>
+              </li>) : (
+              <li>
+                <Link to="/logout">
+                  Logout
+                </Link>
+              </li>
+            )
+            }
           </ul>
         </nav>
         <div className={rootStyle['body-container']}>

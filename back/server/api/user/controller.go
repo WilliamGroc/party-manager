@@ -15,7 +15,7 @@ func (ur *UserRoutes) Login(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 
-	ur.DB.First(&user, "username = ?", body.Username)
+	ur.DB.First(&user, "email = ?", body.Email)
 
 	if user.ID == 0 || bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)) != nil {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -47,7 +47,9 @@ func (ur *UserRoutes) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	user = models.User{Username: body.Username, Password: string(hashed), Email: body.Email}
 	ur.DB.Create(&user)
 
-	api.EncodeBody(w, UserResponse{ID: user.ID, Username: user.Username, Email: user.Email})
+	_, tokenString, _ := ur.Auth.TokenAuth.Encode(map[string]interface{}{"id": user.ID})
+
+	api.EncodeBody(w, LoginResponse{Token: tokenString})
 }
 
 func (ur *UserRoutes) GetMe(w http.ResponseWriter, r *http.Request) {

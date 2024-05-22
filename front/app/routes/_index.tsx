@@ -1,4 +1,6 @@
-import type { MetaFunction } from "@remix-run/node";
+import { LoaderFunctionArgs, type LoaderFunction, type MetaFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { getSession } from "~/session";
 
 export const meta: MetaFunction = () => {
   return [
@@ -7,10 +9,18 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+
+  return { isAuthenticated: session.has('token') };
+}
+
 export default function Index() {
+  const { isAuthenticated } = useLoaderData<ReturnType<typeof loader>>();
+
   return (
     <div>
-      test
+      {isAuthenticated && <div>Logged in</div>}
     </div>
   );
 }

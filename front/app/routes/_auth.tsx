@@ -1,8 +1,21 @@
+import { LoaderFunction, redirect } from "@remix-run/node";
 import { Outlet, useNavigate, useLocation } from "@remix-run/react";
 import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
+import { getSession } from "~/session";
 
 const TABS = ['login', 'register'];
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const session = await getSession(request.headers.get("Cookie"));
+
+  console.log(session.get('token'))
+
+  if (session.has("token"))
+    return redirect("/");
+
+  return null;
+}
 
 export default function Auth() {
   const navigate = useNavigate();

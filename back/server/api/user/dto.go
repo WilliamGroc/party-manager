@@ -26,7 +26,7 @@ type UserResponse struct {
 
 type LoginRequest struct {
 	Password string `json:"password" validate:"required"`
-	Username string `json:"username" validate:"required"`
+	Email    string `json:"email" validate:"required"`
 }
 
 type LoginResponse struct {
