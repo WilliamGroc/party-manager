@@ -106,7 +106,7 @@ func (ur *PartyRoutes) UpdateParty(w http.ResponseWriter, r *http.Request) {
 	partyId, _ := strconv.Atoi(id)
 
 	var party models.Party
-	ur.DB.Where(map[string]interface{}{"HostID": idInt, "ID": partyId}).First(&party)
+	ur.DB.Where(map[string]interface{}{"host_id": idInt, "id": partyId}).First(&party)
 
 	if party.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -117,7 +117,7 @@ func (ur *PartyRoutes) UpdateParty(w http.ResponseWriter, r *http.Request) {
 	var body UpdatePartyRequest
 	api.DecodeBody(r, &body)
 
-	date, err := time.Parse("2006-01-02 03:04:05 -0700", body.Date)
+	date, err := time.Parse("2006-01-02T15:04", body.Date)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
