@@ -58,8 +58,8 @@ func (ur *PartyRoutes) CreateParty(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	date, err := time.Parse("2006-01-02T15:04", body.Date)
-	//date, err := time.Parse("2006-01-02 15:04:05 -0700", body.Date)
+	// date, err := time.Parse("2006-01-02T15:04", body.Date)
+	date, err := time.Parse("2006-01-02 15:04:05 -0700", body.Date)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -117,7 +117,8 @@ func (ur *PartyRoutes) UpdateParty(w http.ResponseWriter, r *http.Request) {
 	var body UpdatePartyRequest
 	api.DecodeBody(r, &body)
 
-	date, err := time.Parse("2006-01-02T15:04", body.Date)
+	// date, err := time.Parse("2006-01-02T15:04", body.Date)
+	date, err := time.Parse("2006-01-02 15:04:05 -0700", body.Date)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

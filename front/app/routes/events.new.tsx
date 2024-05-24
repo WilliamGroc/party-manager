@@ -1,19 +1,22 @@
-import { ActionFunctionArgs, redirect } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { AxiosError } from "axios";
 import { z } from "zod";
-import { http } from "~/utils/http";
+import { FormError } from "~/components/formError";
+import { DataResponse } from "~/models/data";
+import { dateToServerFormat } from "~/utils/date";
+import { handleAction, http } from "~/utils/http";
 
 const validator = z.object({
   name: z.string().min(1),
   description: z.string().min(1),
-  date: z.string().min(1).regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/),
+  date: z.string().min(1),
   location: z.string().min(1),
 });
 
 
 export async function action({ request }: ActionFunctionArgs) {
-  try {
+  return handleAction<(async () => {
     const formData = await request.formData();
 
     const data = {
@@ -25,23 +28,29 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const body = validator.parse(data);
 
-    console.log({ body })
-
     await http.post('/party', body);
 
     return redirect('/events');
-  } catch (error) {
-    if (error instanceof z.ZodError)
-      return new Response(JSON.stringify({ errors: error.errors }), { status: 400 });
-    else if (error instanceof AxiosError)
-      return new Response(JSON.stringify({ errors: error.response?.data }), { status: error.response?.status });
-    else
-      return new Response('Internal server error', { status: 500 });
-  }
+  })
 }
 
 export default function NewEvent() {
-  return <Form method="post">
+  const actionData = useLoaderData<DataResponse<null>>();
+  const submit = useSubmit();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const formData = new FormData();
+
+    formData.set('name', ((form.name as unknown) as HTMLInputElement).value);
+    formData.set('description', form.description.value);
+    formData.set('location', form.location.value);
+    formData.set('date', dateToServerFormat(form.date.value));
+    submit(formData, { method: 'post' });
+  }
+
+  return <Form onSubmit={handleSubmit}>
     <label>
       Name
       <input type="text" name="name" />
@@ -58,6 +67,7 @@ export default function NewEvent() {
       Location
       <input type="text" name="location" />
     </label>
+    <FormError error={actionData?.error} />
     <button type="submit">Create</button>
   </Form>
 }

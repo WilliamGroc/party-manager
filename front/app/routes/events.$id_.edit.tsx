@@ -1,11 +1,13 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from "@remix-run/node";
+import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { Party } from "~/models/party";
-import { dateServerParse } from "~/utils/date";
-import { http } from "~/utils/http";
+import { dateServerParse, dateToServerFormat } from "~/utils/date";
+import { handleAction, http } from "~/utils/http";
 import { format } from 'date-fns'
 import { z } from "zod";
 import { AxiosError } from "axios";
+import { FormError } from "~/components/formError";
+import { DataResponse } from "~/models/data";
 
 export async function loader({ params }: LoaderFunctionArgs): Promise<{ event: Party }> {
   const { data } = await http.get(`/party/${params.id}`);
@@ -21,7 +23,7 @@ const bodyValidator = z.object({
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  try {
+  return handleAction(async () => {
     const formData = await request.formData();
     const id = params.id;
 
@@ -30,26 +32,32 @@ export async function action({ request, params }: ActionFunctionArgs) {
       description: formData.get('description') as string,
       date: formData.get('date') as string,
       location: formData.get('location') as string,
-    })
+    });
 
     await http.put(`/party/${id}`, body);
 
     return redirect(`/events/${id}`);
-  } catch (e) {
-    if (e instanceof z.ZodError) {
-      return new Response(JSON.stringify({ errors: e.errors }), { status: 400 });
-    }
-    else if (e instanceof AxiosError) {
-      return new Response(e.response?.data, { status: e.response?.status });
-    }
-    return new Response("Something went wrong", { status: 500 });
-  }
+  });
 }
 
 export default function UpdateEvent() {
   const { event } = useLoaderData<{ event: Party }>();
+  const actionData = useLoaderData<DataResponse<null>>();
+  const submit = useSubmit();
 
-  return <Form method="post">
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const formData = new FormData();
+    console.log(Object.entries(form))
+    formData.set('name', ((form.name as unknown) as HTMLInputElement).value);
+    formData.set('description', form.description.value);
+    formData.set('location', form.location.value);
+    formData.set('date', dateToServerFormat(form.date.value));
+    submit(formData, { method: 'post' });
+  }
+
+  return <Form onSubmit={handleSubmit}>
     <label>
       Name
       <input type="text" key={`name_${event.id}`} name="name" defaultValue={event.name} />
@@ -66,6 +74,7 @@ export default function UpdateEvent() {
       Location
       <input type="text" key={`location_${event.id}`} name="location" defaultValue={event.location} />
     </label>
+    <FormError error={actionData?.error} />
     <button type="submit">Update</button>
   </Form>
 }

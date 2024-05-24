@@ -1,40 +1,49 @@
-import { ActionFunction, redirect } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { Form, useActionData } from "@remix-run/react";
+import { AxiosError } from "axios";
 import { css } from "styled-system/css";
+import { FormError } from "~/components/formError";
+import { DataResponse } from "~/models/data";
 import { commitSession, getSession } from "~/session";
-import { http, setAuthorizationToken } from "~/utils/http";
+import { http } from "~/utils/http";
 
-export const action: ActionFunction = async ({ request }) => {
-  const body = await request.formData();
+export async function action({ request }: ActionFunctionArgs) {
+  try {
 
-  const session = await getSession(
-    request.headers.get("Cookie")
-  );
+    const body = await request.formData();
 
-  const response = await http.post('/user/login', {
-    email: body.get('email'),
-    password: body.get('password')
-  });
+    const session = await getSession(
+      request.headers.get("Cookie")
+    );
 
-  if (response.status !== 200) {
-    session.flash("error", "Invalid username/password");
+    const { data } = await http.post('/user/login', {
+      email: body.get('email'),
+      password: body.get('password')
+    });
 
-    return new Response(null, {
-      status: 400,
-      statusText: 'Invalid username or password'
+    session.set("token", data.token);
+
+    return redirect("/events", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return json({ error: 'Bad credentials' }, {
+        status: error.response?.status,
+      });
+    }
+
+    return json({ error: 'An error occurred' }, {
+      status: 500,
     });
   }
-
-  session.set("token", response.data.token);
-
-  return redirect("/events", {
-    headers: {
-      "Set-Cookie": await commitSession(session),
-    },
-  });
 }
 
 export default function AuthLogin() {
+  const actionData = useActionData<DataResponse<null>>();
+  
   return (
     <Form
       method="post"
@@ -45,6 +54,7 @@ export default function AuthLogin() {
       })}>
       <input type="text" name="email" placeholder="Email" />
       <input type="password" name="password" placeholder="Password" />
+      <FormError error={actionData?.error} />
       <button type="submit">Login</button>
     </Form>
   );

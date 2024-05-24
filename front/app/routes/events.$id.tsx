@@ -6,6 +6,7 @@ import { dateServerParse } from "~/utils/date";
 import { http } from "~/utils/http";
 import { format } from 'date-fns'
 import { css } from "styled-system/css";
+import { fr } from "date-fns/locale";
 
 export async function loader({ params }: LoaderFunctionArgs): Promise<{ event: Party }> {
   const { data } = await http.get(`/party/${params.id}`);
@@ -40,7 +41,7 @@ export default function EventById() {
       </label>
       <label className={labelStyle}>
         <div className={titleStyle}>Date</div>
-        <div>{format(dateServerParse(event.date), 'yyyy-MM-dd HH:mm')}</div>
+        <div>{format(dateServerParse(event.date), "iii dd MMM yyyy HH:mm", { locale: fr })}</div>
       </label>
       <label className={labelStyle}>
         <div className={titleStyle}>Location</div>

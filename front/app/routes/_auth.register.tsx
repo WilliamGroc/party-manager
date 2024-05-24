@@ -1,6 +1,8 @@
-import { ActionFunction, redirect } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { ActionFunction, json, redirect } from "@remix-run/node";
+import { Form, useLoaderData } from "@remix-run/react";
 import { css } from "styled-system/css";
+import { FormError } from "~/components/formError";
+import { DataResponse } from "~/models/data";
 import { commitSession, getSession } from "~/session";
 import { http } from "~/utils/http";
 
@@ -29,11 +31,9 @@ export const action: ActionFunction = async ({ request }) => {
   );
 
   if (response.status !== 200) {
-    session.flash("error", "Invalid username/password");
-
-    return new Response(null, {
+    return json({ error: 'Invalid username or email' }, {
       status: 400,
-      statusText: 'Invalid username or password'
+      statusText: 'Invalid username or email'
     });
   }
 
@@ -47,6 +47,8 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function AuthRegister() {
+  const actionData = useLoaderData<DataResponse<null>>();
+
   return (
     <Form className={css({
       display: 'flex',
@@ -59,6 +61,7 @@ export default function AuthRegister() {
       <input type="text" name="email" placeholder="Email" />
       <input type="password" name="password" placeholder="Password" />
       <input type="password" name="confirmPassword" placeholder="Confirm password" />
+      <FormError error={actionData?.error} />
       <button type="submit">Login</button>
     </Form>
   );
