@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"partymanager/server/api/guest"
+
 	"github.com/go-chi/chi/v5"
 )
 
@@ -87,7 +89,34 @@ func (ur *PartyRoutes) GetParty(w http.ResponseWriter, r *http.Request) {
 
 	ur.DB.First(&party, id)
 
-	api.EncodeBody(w, PartyResponse{ID: party.ID, Name: party.Name, Description: party.Description, Location: party.Location, Date: party.Date.String(), HostID: party.HostID})
+	if party.ID == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Party not found"))
+		return
+	}
+
+	var guests []models.Guest
+	ur.DB.Where("party_id = ?", id).Find(&guests)
+
+	var guestList []guest.GuestResponse = []guest.GuestResponse{}
+	for _, guestItem := range guests {
+		guestList = append(guestList, guest.GuestResponse{
+			ID:       guestItem.ID,
+			Username: guestItem.Username,
+			Email:    guestItem.Email,
+			Present:  guestItem.Present,
+		})
+	}
+
+	api.EncodeBody(w, PartyResponse{
+		ID:          party.ID,
+		Name:        party.Name,
+		Description: party.Description,
+		Location:    party.Location,
+		Date:        party.Date.String(),
+		HostID:      party.HostID,
+		Guests:      guestList,
+	})
 }
 
 func (ur *PartyRoutes) UpdateParty(w http.ResponseWriter, r *http.Request) {

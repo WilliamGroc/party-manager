@@ -20,6 +20,10 @@ import { setAuthorizationToken } from "./utils/http";
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: panda },
   { rel: "stylesheet", href: styles },
+  {
+    rel: "stylesheet",
+    href: "https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css"
+  }
 ];
 
 export async function loader({ request }: LoaderFunctionArgs) {

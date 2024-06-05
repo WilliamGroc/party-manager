@@ -9,11 +9,10 @@ type GuestResponse struct {
 	ID       uint   `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
-	Present  bool   `json:"present"`
-	PartyID  int    `json:"party_id"`
+	Present  string `json:"present"`
 }
 
 type UpdateGuestRequest struct {
 	Username string `json:"username" validate:"required"`
-	Present  bool   `json:"present"`
+	Present  string `json:"present"`
 }

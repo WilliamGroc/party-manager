@@ -38,9 +38,9 @@ func (ur *GuestRoutes) GetAllGuestFromParty(w http.ResponseWriter, r *http.Reque
 	var guests []models.Guest
 	ur.DB.Where("party_id = ?", partyId).Find(&guests)
 
-	var response []GuestResponse
+	var response []GuestResponse = []GuestResponse{}
 	for _, guest := range guests {
-		response = append(response, GuestResponse{ID: guest.ID, Username: guest.Username, Email: guest.Email, PartyID: guest.PartyID, Present: guest.Present})
+		response = append(response, GuestResponse{ID: guest.ID, Username: guest.Username, Email: guest.Email, Present: guest.Present})
 	}
 
 	api.EncodeBody(w, response)
@@ -84,7 +84,7 @@ func (ur *GuestRoutes) AddGuestToParty(w http.ResponseWriter, r *http.Request) {
 
 	var response []GuestResponse
 	for _, guest := range guests {
-		response = append(response, GuestResponse{ID: guest.ID, Username: guest.Username, Email: guest.Email, PartyID: guest.PartyID, Present: guest.Present})
+		response = append(response, GuestResponse{ID: guest.ID, Username: guest.Username, Email: guest.Email, Present: guest.Present})
 	}
 
 	api.EncodeBody(w, response)
@@ -135,7 +135,6 @@ func (ur *GuestRoutes) UpdateGuest(w http.ResponseWriter, r *http.Request) {
 		ID:       guest.ID,
 		Username: body.Username,
 		Email:    guest.Email,
-		PartyID:  guest.PartyID,
 		Present:  body.Present,
 	}
 

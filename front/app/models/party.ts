@@ -1,3 +1,5 @@
+import { Guest } from "./guest";
+
 export interface Party{
   id: number;
   name: string;
@@ -7,4 +9,5 @@ export interface Party{
   image: string;
   created_at: string;
   updated_at: string;
+  guests: Guest[];
 }

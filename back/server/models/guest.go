@@ -6,5 +6,5 @@ type Guest struct {
 	Email    string `json:"email"`
 	UserID   int    `json:"user_id"`
 	PartyID  int    `json:"party_id"`
-	Present  bool   `json:"present"`
+	Present  string `json:"present"`
 }
