@@ -16,6 +16,7 @@ import { LinksFunction, LoaderFunctionArgs, MetaFunction } from "@remix-run/node
 import rootStyle from './root.module.css';
 import { getSession } from "./session";
 import { setAuthorizationToken } from "./utils/http";
+import { Navbar } from "./components/navbar";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: panda },
@@ -62,36 +63,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <nav className={rootStyle['navbar-container']}>
-          <div>
-            <Link to="/events" className={rootStyle['navbar-title']}>
-              Party planner
-            </Link>
-          </div>
-
-          <ul className={rootStyle.navbar}>
-            {!data?.isAuthenticated ? (
-              <li>
-                <Link to="/login">
-                  Authentication
-                </Link>
-              </li>) : (
-              <>
-                <li>
-                  <Link to="/events">
-                    Events
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/logout">
-                    Logout
-                  </Link>
-                </li>
-              </>
-            )
-            }
-          </ul>
-        </nav>
+        <Navbar isAuthenticated={data.isAuthenticated} />
         <div className={rootStyle['body-container']}>
           {children}
         </div>

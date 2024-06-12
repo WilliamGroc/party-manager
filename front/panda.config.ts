@@ -1,5 +1,5 @@
 import { defineConfig } from "@pandacss/dev";
-
+// https://mantine.dev/colors-generator/
 export default defineConfig({
   // Whether to use css reset
   preflight: true,
@@ -16,17 +16,21 @@ export default defineConfig({
       tokens: {
         colors: {
           primary: { value: '#29AA7D' },
-          secondary: { value: '#8FCCB7' },
+          secondary: { value: '#88e0c1' },
+          lgreen: { value: '#b9e1ba' },
           green: { value: '#4CAF50' },
-          darkgreen: { value: '#388E3C' },
+          dgreen: { value: '#388E3C' },
+          lred: { value: '#fca6a0' },
           red: { value: '#F44336' },
-          darkred: { value: '#D32F2F' },
+          dred: { value: '#D32F2F' },
+          lyellow: { value: '#fffacb' },
           yellow: { value: '#FFEB3B' },
-          darkyellow: { value: '#FBC02D' },
+          dyellow: { value: '#FBC02D' },
+          lorange: { value: '#ffd79b' },
           orange: { value: '#FF9800' },
-          darkorange: { value: '#F57C00' },
+          dorange: { value: '#F57C00' },
           grey: { value: '#F5F5F5' },
-          darkgrey: { value: '#555555' },
+          dgrey: { value: '#555555' },
           disable: { value: '#E0E0E0' },
         },
         fonts: {

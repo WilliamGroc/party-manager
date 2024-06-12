@@ -13,6 +13,5 @@ type GuestResponse struct {
 }
 
 type UpdateGuestRequest struct {
-	Username string `json:"username" validate:"required"`
-	Present  string `json:"present"`
+	Present string `json:"present" validate:"required"`
 }

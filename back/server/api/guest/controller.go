@@ -129,11 +129,11 @@ func (ur *GuestRoutes) UpdateGuest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ur.DB.Model(&guest).Updates(&models.Guest{Username: body.Username, Present: body.Present})
+	ur.DB.Model(&guest).Updates(&models.Guest{Present: body.Present})
 
 	response := GuestResponse{
 		ID:       guest.ID,
-		Username: body.Username,
+		Username: guest.Username,
 		Email:    guest.Email,
 		Present:  body.Present,
 	}

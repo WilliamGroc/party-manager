@@ -1,6 +1,5 @@
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
-import { AxiosError } from "axios";
 import { z } from "zod";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
@@ -14,9 +13,8 @@ const validator = z.object({
   location: z.string().min(1),
 });
 
-
 export async function action({ request }: ActionFunctionArgs) {
-  return handleAction<(async () => {
+  return handleAction(async () => {
     const formData = await request.formData();
 
     const data = {
@@ -28,9 +26,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const body = validator.parse(data);
 
-    await http.post('/party', body);
+    const { data: responseData } = await http.post<{ id: number }>('/party', body);
 
-    return redirect('/events');
+    return redirect(`/events/${responseData.id}`);
   })
 }
 

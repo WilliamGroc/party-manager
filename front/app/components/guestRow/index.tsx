@@ -1,11 +1,18 @@
-import { css } from "styled-system/css";
+import { css, cx } from "styled-system/css";
 import { Guest, Present } from "~/models/guest";
+import { DeleteButton } from "../deleteButton";
 
 type Props = {
   guest: Guest;
   onDelete: (id: number) => void;
   onSetPresence: (id: number, present: Present) => void;
 }
+
+const buttonStyle = css({
+  color: 'white',
+  borderRadius: '0!',
+  minWidth: '0px!',
+})
 
 export function GuestRow({ guest, onSetPresence, onDelete }: Props) {
   return <div className={css({
@@ -28,69 +35,64 @@ export function GuestRow({ guest, onSetPresence, onDelete }: Props) {
     <div className={css({ display: 'flex' })}>
       <div>
         <button
-          className={css({
-            bgColor: guest.present === Present.OK ? 'green !important' : 'darkgrey !important',
-            '&:hover': {
-              bgColor: 'darkgreen !important'
-            },
-            color: 'white'
-          })}
+          className={cx(
+            buttonStyle,
+            css({
+              bgColor: guest.present === Present.OK ? 'green!' : 'dgrey!',
+              '&:hover': {
+                bgColor: 'dgreen!'
+              },
+            }))}
           onClick={() => onSetPresence(guest.id, Present.OK)}>
           <i className="ri-emotion-happy-line"></i>
         </button>
       </div>
       <div>
         <button
-          className={css({
-            bgColor: guest.present === Present.KO ? 'red !important' : 'darkgrey !important',
-            '&:hover': {
-              bgColor: 'darkred !important'
-            },
-            color: 'white'
-          })}
+          className={cx(
+            buttonStyle,
+            css({
+              bgColor: guest.present === Present.KO ? 'red!' : 'dgrey!',
+              '&:hover': {
+                bgColor: 'dred!'
+              },
+            }))}
           onClick={() => onSetPresence(guest.id, Present.KO)}>
           <i className="ri-emotion-unhappy-line"></i>
         </button>
       </div>
       <div>
         <button
-          className={css({
-            bgColor: guest.present === Present.MAYBE ? 'yellow !important' : 'darkgrey !important',
-            '&:hover': {
-              bgColor: 'darkyellow !important'
-            },
-            color: 'white'
-          })}
+          className={cx(
+            buttonStyle,
+            css({
+              bgColor: guest.present === Present.MAYBE ? 'yellow!' : 'dgrey!',
+              '&:hover': {
+                bgColor: 'dyellow!'
+              }
+            }))}
           onClick={() => onSetPresence(guest.id, Present.MAYBE)}>
           <i className="ri-emotion-normal-line"></i>
         </button>
       </div>
       <div>
         <button
-          className={css({
-            bgColor: guest.present === Present.NO_ANSWER || !guest.present ? 'orange !important' : 'darkgrey !important',
-            '&:hover': {
-              bgColor: 'darkorange !important'
-            },
-            color: 'white'
-          })}
+          className={cx(
+            buttonStyle,
+            css({
+              bgColor: guest.present === Present.NO_ANSWER || !guest.present ? 'orange!' : 'dgrey!',
+              '&:hover': {
+                bgColor: 'dorange!'
+              },
+              color: 'white',
+              borderRadius: '0!'
+            }))}
           onClick={() => onSetPresence(guest.id, Present.NO_ANSWER)}>
           <i className="ri-question-mark"></i>
         </button>
       </div>
       <div className={css({ ml: '1' })}>
-        <button
-          className={css({
-            bgColor: 'red !important',
-            '&:hover': {
-              bgColor: 'darkred !important'
-            },
-            color: 'white'
-          })}
-          onClick={() => onDelete(guest.id)}
-        >
-          <i className={`ri-delete-bin-line`}></i>
-        </button>
+        <DeleteButton onDelete={() => onDelete(guest.id)} noBorderRadius />
       </div>
     </div>
   </div >

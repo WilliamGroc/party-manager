@@ -96,7 +96,7 @@ func (ur *PartyRoutes) GetParty(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var guests []models.Guest
-	ur.DB.Where("party_id = ?", id).Find(&guests)
+	ur.DB.Where("party_id = ?", id).Order("id asc").Find(&guests)
 
 	var guestList []guest.GuestResponse = []guest.GuestResponse{}
 	for _, guestItem := range guests {

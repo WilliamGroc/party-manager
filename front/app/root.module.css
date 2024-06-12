@@ -1,33 +1,3 @@
-.navbar-container {
-  background-color: #29AA7D;
-  display: flex;
-  justify-content: center;
-  padding: 8px;
-  color: white;
-}
-
-.navbar {
-  display: flex;
-}
-
-.navbar>li {
-  margin-right: 8px;
-}
-
-.navbar>li>a {
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.navbar>li>a:hover {
-  text-decoration: underline;
-}
-
-.navbar-title {
-  font-weight: bolder;
-  margin-right: 12px;
-}
-
 .body-container {
   padding: 8px;
 }

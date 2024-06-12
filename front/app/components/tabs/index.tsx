@@ -1,13 +1,12 @@
-import { Fragment } from "react";
+import { Link } from "@remix-run/react";
 import { css } from "styled-system/css";
 
 type Props = {
-  tabs: string[];
+  tabs: { name: string, path: string }[];
   current: string,
-  onChange: (tab: string) => void;
 }
 
-export function Tabs({ tabs, current, onChange }: Props) {
+export function Tabs({ tabs, current }: Props) {
   return (
     <div className={css({
       display: "flex",
@@ -16,16 +15,16 @@ export function Tabs({ tabs, current, onChange }: Props) {
       marginBottom: 16
     })}>
       {tabs.map((tab) => (
-        <a
-          key={tab}
-          onClick={() => onChange(tab)}
+        <Link
+          key={tab.name}
+          to={tab.path}
           className={css({
-            color: current === tab ? "primary" : "gray",
+            color: current === tab.path ? "primary" : "gray",
             bg: "white",
             border: "none",
             borderBottomStyle: "solid",
             borderBottomWidth: 2,
-            borderBottomColor: current === tab ? "primary" : "transparent",
+            borderBottomColor: current === tab.path ? "primary" : "transparent",
             padding: "8px 16px",
             cursor: "pointer",
             fontSize: 16,
@@ -36,8 +35,8 @@ export function Tabs({ tabs, current, onChange }: Props) {
             }
           })}
         >
-          {tab}
-        </a>
+          {tab.name}
+        </Link>
       ))}
     </div>
   );

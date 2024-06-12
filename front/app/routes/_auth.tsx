@@ -1,10 +1,13 @@
 import { LoaderFunction, redirect } from "@remix-run/node";
-import { Outlet, useNavigate, useLocation } from "@remix-run/react";
+import { Outlet, useLocation } from "@remix-run/react";
 import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
 import { getSession } from "~/session";
 
-const TABS = ['login', 'register'];
+const TABS = [
+  { name: 'login', path: 'login' },
+  { name: 'register', path: 'register' }
+];
 
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await getSession(request.headers.get("Cookie"));
@@ -18,17 +21,12 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export default function Auth() {
-  const navigate = useNavigate();
   const location = useLocation();
   const currentTab = location.pathname.split("/").pop() || 'login';
 
-  const handleTabChange = (tab: string) => {
-    navigate(tab.toLowerCase());
-  }
-
   return (
     <div>
-      <Tabs tabs={TABS} current={currentTab} onChange={handleTabChange} />
+      <Tabs tabs={TABS} current={currentTab} />
       <div className={css({
         display: 'flex',
         justifyContent: 'center',
