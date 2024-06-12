@@ -1,22 +1,24 @@
 import {
-  Link,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useSubmit,
 } from "@remix-run/react";
 
 import panda from "./panda.css?url"
 import styles from "./styles.css?url"
 
-import { LinksFunction, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { ActionFunctionArgs, LinksFunction, LoaderFunctionArgs, MetaFunction, json, redirect } from "@remix-run/node";
 
 import rootStyle from './root.module.css';
 import { getSession } from "./session";
 import { setAuthorizationToken } from "./utils/http";
 import { Navbar } from "./components/navbar";
+import i18next, { localeCookie } from "./i18n/i18next.server";
+import { useChangeLanguage } from "remix-i18next/react";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: panda },
@@ -27,9 +29,17 @@ export const links: LinksFunction = () => [
   }
 ];
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  try {
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Party planner" },
+    { name: "description", content: "Welcome to Remix!" },
+  ];
+};
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const locale = await i18next.getLocale(request) || 'en'	;
+
+  try {
     const session = await getSession(request.headers.get("Cookie"));
 
     const token = session.get('token');
@@ -38,24 +48,39 @@ export async function loader({ request }: LoaderFunctionArgs) {
     if (token)
       setAuthorizationToken(token);
 
-    return { isAuthenticated: !!token };
+    return json({ isAuthenticated: !!token, locale }, { headers: { "Set-Cookie": await localeCookie.serialize(locale) } });
   } catch (e) {
     console.error(e);
-    return { isAuthenticated: false };
+    return { isAuthenticated: false, locale };
   }
 }
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "Party planner" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
-};
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const locale = formData.get('locale') as 'fr' | 'en';
+
+  console.log({ newLocale: locale })
+
+  return redirect("/", {
+    headers: {
+      "Set-Cookie": await localeCookie.serialize(locale),
+    },
+  });
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const data = useLoaderData<ReturnType<typeof loader>>();
+  const data = useLoaderData<typeof loader>();
+
+  const sumbit = useSubmit();
+
+  const handleLanguageChange = (lang: 'fr' | 'en') => {
+    const formData = new FormData();
+    formData.append('locale', lang);
+    sumbit(formData, { method: 'POST' });
+  }
+
   return (
-    <html lang="en">
+    <html lang={data?.locale || 'en'}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -63,7 +88,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <Navbar isAuthenticated={data.isAuthenticated} />
+        <Navbar isAuthenticated={data?.isAuthenticated} setLanguage={handleLanguageChange} />
         <div className={rootStyle['body-container']}>
           {children}
         </div>
@@ -75,5 +100,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const { locale } = useLoaderData<typeof loader>();
+  useChangeLanguage(locale);
+
   return <Outlet />;
 }
