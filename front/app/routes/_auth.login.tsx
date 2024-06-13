@@ -1,6 +1,7 @@
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
@@ -42,8 +43,9 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function AuthLogin() {
+  const { t } = useTranslation();
   const actionData = useActionData<DataResponse<null>>();
-  
+
   return (
     <Form
       method="post"
@@ -52,10 +54,10 @@ export default function AuthLogin() {
         flexDir: 'column',
         w: '33%'
       })}>
-      <input type="text" name="email" placeholder="Email" />
-      <input type="password" name="password" placeholder="Password" />
+      <input type="text" name="email" placeholder={t('Email')} />
+      <input type="password" name="password" placeholder={t('Password')} />
       <FormError error={actionData?.error} />
-      <button type="submit">Login</button>
+      <button type="submit">{t('Login')}</button>
     </Form>
   );
 }

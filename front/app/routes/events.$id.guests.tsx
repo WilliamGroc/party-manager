@@ -8,6 +8,7 @@ import { GuestRow } from "~/components/guestRow";
 import { loader as eventIdLoader } from "~/routes/events.$id";
 import { Present } from "~/models/guest";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 const actionPostValidator = z.object({
   username: z.string(),
@@ -60,6 +61,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function EventById() {
+  const { t } = useTranslation();
   const loaderData = useRouteLoaderData<typeof eventIdLoader>("routes/events.$id");
   const submit = useSubmit();
   const formRef = useRef<HTMLFormElement>(null);
@@ -105,15 +107,15 @@ export default function EventById() {
       onSubmit={handleAdd}
     >
       <label>
-        Username
+        {t('Username')}
         <input type="text" name="username" />
       </label>
       <label>
-        Email
+        {t('Email')}
         <input type="text" name="email" />
       </label>
       <div className={css({ width: '140px', display: 'flex', alignItems: 'flex-end' })}>
-        <button type="submit">Add</button>
+        <button type="submit">{t('Add')}</button>
       </div>
     </Form>
     <div>

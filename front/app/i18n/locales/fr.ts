@@ -1,5 +1,23 @@
 export default {
   Authentication: "Authentification",
   Events: "Événements",
-  Logout: "Déconnexion"
+  Logout: "Déconnexion",
+  Login: "Connexion",
+  Email: "Email",
+  Password: "Mot de passe",
+  Register: "S'inscrire",
+  Username: "Nom d'utilisateur",
+  "Confirm Password": "Confirmer le mot de passe",
+  "Passwords do not match": "Les mots de passe ne correspondent pas",
+  "Invalid username or email": "Nom d'utilisateur ou email invalide",
+  Name: "Nom",
+  Description: "Description",
+  Date: "Date",
+  Location: "Lieu",
+  Update: "Mettre à jour",
+  Edit: "Modifier",
+  Add: "Ajouter",
+  Guests: "Invités",
+  Create: "Créer",
+  "Create Event": "Créer un événement"
 };

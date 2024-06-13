@@ -1,5 +1,6 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, useLoaderData, useLocation } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
 import { Party } from "~/models/party";
@@ -13,15 +14,16 @@ export async function loader({ params }: LoaderFunctionArgs): Promise<{ event: P
 }
 
 export default function EventById() {
+  const { t } = useTranslation();
   const loaderData = useLoaderData<typeof loader>();
   const location = useLocation();
   let currentTab = location.pathname.split("/").pop() || '';
 
   const TABS = [{
-    name: 'Description',
+    name: t('Description'),
     path: '',
   }, {
-    name: `Guests (${loaderData.event.guests.length})`,
+    name: `${t('Guests')} (${loaderData.event.guests.length})`,
     path: 'guests',
   }];
 

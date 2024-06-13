@@ -5,9 +5,9 @@ import { dateServerParse, dateToServerFormat } from "~/utils/date";
 import { handleAction, http } from "~/utils/http";
 import { format } from 'date-fns'
 import { z } from "zod";
-import { AxiosError } from "axios";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
+import { useTranslation } from "react-i18next";
 
 export async function loader({ params }: LoaderFunctionArgs): Promise<{ event: Party }> {
   const { data } = await http.get(`/party/${params.id}`);
@@ -41,6 +41,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function UpdateEvent() {
+  const { t } = useTranslation();
   const { event } = useLoaderData<{ event: Party }>();
   const actionData = useLoaderData<DataResponse<null>>();
   const submit = useSubmit();
@@ -49,7 +50,6 @@ export default function UpdateEvent() {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;
     const formData = new FormData();
-    console.log(Object.entries(form))
     formData.set('name', ((form.name as unknown) as HTMLInputElement).value);
     formData.set('description', form.description.value);
     formData.set('location', form.location.value);
@@ -59,22 +59,22 @@ export default function UpdateEvent() {
 
   return <Form onSubmit={handleSubmit}>
     <label>
-      Name
+      {t('Name')}
       <input type="text" key={`name_${event.id}`} name="name" defaultValue={event.name} />
     </label>
     <label>
-      Description
+      {t('Description')}
       <input type="text" key={`description_${event.id}`} name="description" defaultValue={event.description} />
     </label>
     <label>
-      Date
+      {t('Date')}
       <input type="datetime-local" key={`date_${event.id}`} name="date" defaultValue={format(dateServerParse(event.date), 'yyyy-MM-dd HH:mm')} />
     </label>
     <label>
-      Location
+      {t('Location')}
       <input type="text" key={`location_${event.id}`} name="location" defaultValue={event.location} />
     </label>
     <FormError error={actionData?.error} />
-    <button type="submit">Update</button>
+    <button type="submit">{t('Update')}</button>
   </Form>
 }

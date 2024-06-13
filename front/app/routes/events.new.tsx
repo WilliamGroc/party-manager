@@ -1,5 +1,6 @@
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
@@ -33,6 +34,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function NewEvent() {
+  const { t } = useTranslation();
   const actionData = useLoaderData<DataResponse<null>>();
   const submit = useSubmit();
 
@@ -50,22 +52,22 @@ export default function NewEvent() {
 
   return <Form onSubmit={handleSubmit}>
     <label>
-      Name
+      {t('Name')}
       <input type="text" name="name" />
     </label>
     <label>
-      Description
+      {t('Description')}
       <input type="text" name="description" />
     </label>
     <label>
-      Date
+      {t('Date')}
       <input type="datetime-local" name="date" />
     </label>
     <label>
-      Location
+      {t('Location')}
       <input type="text" name="location" />
     </label>
     <FormError error={actionData?.error} />
-    <button type="submit">Create</button>
+    <button type="submit">{t('Create')}</button>
   </Form>
 }

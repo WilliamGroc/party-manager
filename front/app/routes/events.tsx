@@ -7,6 +7,7 @@ import { http } from "~/utils/http";
 import { compareAsc, formatDistanceToNow, parse } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { dateServerParse } from "~/utils/date";
+import { useTranslation } from "react-i18next";
 
 type LoaderData = {
   isAuthenticated: boolean;
@@ -25,6 +26,7 @@ export async function loader({ request }: LoaderFunctionArgs): Promise<LoaderDat
 }
 
 export default function Events() {
+  const { t } = useTranslation();
   const { events } = useLoaderData<LoaderData>();
   const params = useParams<{ id: string }>();
 
@@ -38,7 +40,7 @@ export default function Events() {
         overflow: "auto"
       })}>
         <div className={css({ w: "160px" })}>
-          <Link to="/events/new"><button>Create event</button></Link>
+          <Link to="/events/new"><button>{t('Create Event')}</button></Link>
         </div>
         <div className={css({
           display: "flex",

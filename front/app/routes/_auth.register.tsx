@@ -1,5 +1,6 @@
 import { ActionFunction, json, redirect } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
@@ -47,6 +48,7 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function AuthRegister() {
+  const { t } = useTranslation();
   const actionData = useLoaderData<DataResponse<null>>();
 
   return (
@@ -57,12 +59,12 @@ export default function AuthRegister() {
     })}
       method="post"
     >
-      <input type="text" name="username" placeholder="Username" />
-      <input type="text" name="email" placeholder="Email" />
-      <input type="password" name="password" placeholder="Password" />
-      <input type="password" name="confirmPassword" placeholder="Confirm password" />
+      <input type="text" name="username" placeholder={t('Username')} />
+      <input type="text" name="email" placeholder={t('Email')} />
+      <input type="password" name="password" placeholder={t('Password')} />
+      <input type="password" name="confirmPassword" placeholder={t('Confirm Password')} />
       <FormError error={actionData?.error} />
-      <button type="submit">Login</button>
+      <button type="submit">{t('Register')}</button>
     </Form>
   );
 }
