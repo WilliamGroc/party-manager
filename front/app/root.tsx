@@ -43,7 +43,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const session = await getSession(request.headers.get("Cookie"));
 
     const token = session.get('token');
-    console.log({ token })
 
     if (token)
       setAuthorizationToken(token);

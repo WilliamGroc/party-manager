@@ -1,6 +1,8 @@
 package guest
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"partymanager/server/api"
@@ -172,4 +174,52 @@ func (ur *GuestRoutes) DeleteGuestFromParty(w http.ResponseWriter, r *http.Reque
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Guest deleted"))
+}
+
+func (ur *GuestRoutes) GetShareLink(w http.ResponseWriter, r *http.Request) {
+	token, err := auth.GetToken(&r.Header, ur.Auth.TokenAuth)
+
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	userid, _ := token.Get("id")
+	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", userid)) // Convert id to integer
+
+	party_id := chi.URLParam(r, "partyId")
+	partyId, _ := strconv.Atoi(party_id)
+
+	guest_id := chi.URLParam(r, "guestId")
+	guestId, _ := strconv.Atoi(guest_id)
+
+	var party models.Party
+	ur.DB.Where(map[string]interface{}{"host_id": idInt, "id": partyId}).First(&party)
+
+	if party.ID == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Party not found"))
+		return
+	}
+
+	baseLink := fmt.Sprintf("party/%d/%d", partyId, guestId)
+
+	hasher := sha1.New()
+	hasher.Write([]byte(baseLink))
+
+	linkToken := hex.EncodeToString(hasher.Sum(nil))
+
+	var guest models.Guest
+	ur.DB.Where("id = ?", guestId).First(&guest)
+
+	if guest.ID == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Guest not found"))
+		return
+	}
+
+	ur.DB.Model(&guest).Updates(&models.Guest{LinkToken: linkToken})
+
+	api.EncodeBody(w, map[string]string{"link": linkToken})
 }

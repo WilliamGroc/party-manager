@@ -1,25 +1,32 @@
 import { LoaderFunctionArgs, TypedResponse, redirect } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useLocation, useParams } from "@remix-run/react";
+import { Link, Outlet, useLoaderData, useParams } from "@remix-run/react";
 import { css } from "styled-system/css";
 import { Party } from "~/models/party";
 import { getSession } from "~/session";
 import { http } from "~/utils/http";
-import { compareAsc, formatDistanceToNow, parse } from 'date-fns'
-import { fr } from 'date-fns/locale'
-import { dateServerParse } from "~/utils/date";
+import { compareAsc, formatDistanceToNow } from 'date-fns'
+import { dateLocales, dateServerParse } from "~/utils/date";
 import { useTranslation } from "react-i18next";
+import i18next from "~/i18n/i18next.server";
+import { enUS } from "date-fns/locale/en-US";
 
 type LoaderData = {
   isAuthenticated: boolean;
   events: Party[];
+  locale: 'en' | 'fr';
 };
 
 export async function loader({ request }: LoaderFunctionArgs): Promise<LoaderData | TypedResponse<never>> {
   const session = await getSession(request.headers.get("Cookie"));
-
+  
   if (session.has('token')) {
+    const locale = await (i18next.getLocale(request) || 'en')	as 'en' | 'fr';
     const { data } = await http.get('/party');
-    return { isAuthenticated: session.has('token'), events: data };
+    return { 
+      isAuthenticated: session.has('token'), 
+      events: data, 
+      locale 
+    };
   }
 
   return redirect('/login');
@@ -27,7 +34,7 @@ export async function loader({ request }: LoaderFunctionArgs): Promise<LoaderDat
 
 export default function Events() {
   const { t } = useTranslation();
-  const { events } = useLoaderData<LoaderData>();
+  const { events, locale } = useLoaderData<LoaderData>();
   const params = useParams<{ id: string }>();
 
   return (
@@ -63,7 +70,7 @@ export default function Events() {
                   <div>
                     {event.name}
                   </div>
-                  <div>{formatDistanceToNow(dateServerParse(event.date), { addSuffix: true, locale: fr })}</div>
+                  <div>{formatDistanceToNow(dateServerParse(event.date), { addSuffix: true, locale: dateLocales[locale] || enUS })}</div>
                 </div>
               </Link>
             ))}

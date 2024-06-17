@@ -1,4 +1,6 @@
-import { format, parse } from "date-fns";
+import { Locale, format, parse } from "date-fns";
+import { fr } from "date-fns/locale/fr";
+import { enUS } from 'date-fns/locale/en-US'
 
 export function dateServerParse(date: string) {
   return parse(date, "yyyy-MM-dd HH:mm:ss XXXX 'CEST'", new Date());
@@ -11,3 +13,11 @@ export function dateFormParse(date: string) {
 export function dateToServerFormat(date: string){
   return format(dateFormParse(date), "yyyy-MM-dd HH:mm:ss XXXX")
 }
+
+export const dateLocales: {
+  en: Locale;
+  fr: Locale;
+} = {
+  fr: fr,
+  en: enUS,
+};

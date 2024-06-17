@@ -1,6 +1,8 @@
 import { Link } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
+import imgFr from "public/img/france.png?url"
+import imgUs from "public/img/etats-unis.png?url"
 
 type Props = {
   isAuthenticated: boolean;
@@ -71,14 +73,14 @@ export function Navbar({ isAuthenticated, setLanguage }: Props) {
           minW: '0!'
         })}
         onClick={() => setLanguage('fr')}>
-        <img src="img/france.png" alt="fr" />
+        <img src={imgFr} alt="fr" />
       </button>
       <button
         className={css({
           minW: '0!'
         })}
         onClick={() => setLanguage('en')}>
-        <img src="img/etats-unis.png" alt="en" />
+        <img src={imgUs} alt="en" />
       </button>
     </div>
   </nav>

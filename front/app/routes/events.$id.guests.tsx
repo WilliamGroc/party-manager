@@ -1,6 +1,6 @@
 
 import { ActionFunctionArgs } from "@remix-run/node";
-import { Form, useActionData, useRouteLoaderData, useSubmit } from "@remix-run/react";
+import { Form, useFetcher, useRouteLoaderData, useSubmit } from "@remix-run/react";
 import { handleAction, http } from "~/utils/http";
 import { css } from "styled-system/css";
 import { z } from "zod";
@@ -64,7 +64,14 @@ export default function EventById() {
   const { t } = useTranslation();
   const loaderData = useRouteLoaderData<typeof eventIdLoader>("routes/events.$id");
   const submit = useSubmit();
+  const fetcher = useFetcher();
   const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (fetcher.state === 'idle') {
+      console.log(fetcher.data);
+    }
+  }, [fetcher.state])
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,6 +103,13 @@ export default function EventById() {
     });
   }
 
+  const handleShare = (id: number) => {
+    console.log('share', `/api/share/${loaderData?.event.id}/${id}`);
+    fetcher.submit(null, {
+      action: `/api/share/${loaderData?.event.id}/${id}`
+    });
+  }
+
   return <div>
     <Form className={css({
       display: 'flex',
@@ -124,6 +138,7 @@ export default function EventById() {
         guest={guest}
         onDelete={handleDelete}
         onSetPresence={handleSetPresence}
+        onShare={handleShare}
       />)}
     </div>
   </div>
