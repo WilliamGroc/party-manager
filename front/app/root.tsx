@@ -58,8 +58,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const locale = formData.get('locale') as 'fr' | 'en';
 
-  console.log({ newLocale: locale })
-
   return redirect("/", {
     headers: {
       "Set-Cookie": await localeCookie.serialize(locale),

@@ -9,7 +9,7 @@ export function loader({ params }: LoaderFunctionArgs) {
     const { data } = await http.get(`/guest/party/${eventId}/${guestId}`);
 
     return {
-      data
+      link: data.link
     }
   });
 }

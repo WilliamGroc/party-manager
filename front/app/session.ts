@@ -2,6 +2,7 @@
 import { createCookieSessionStorage } from "@remix-run/node"; // or cloudflare/deno
 
 type SessionData = {
+  email: string;
   token: string;
 };
 

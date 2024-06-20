@@ -26,7 +26,6 @@ export const action: ActionFunction = async ({ request }) => {
     password: body.get('password')
   });
 
-
   const session = await getSession(
     request.headers.get("Cookie")
   );
@@ -38,6 +37,7 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
+  session.set("email", response.data.email);
   session.set("token", response.data.token);
 
   return redirect("/events", {

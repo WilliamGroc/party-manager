@@ -1,8 +1,8 @@
 import { Link } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
-import imgFr from "public/img/france.png?url"
-import imgUs from "public/img/etats-unis.png?url"
+import imgFr from "/img/france.png?url"
+import imgUs from "/img/etats-unis.png?url"
 
 type Props = {
   isAuthenticated: boolean;

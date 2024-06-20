@@ -23,9 +23,9 @@ func (ur *UserRoutes) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, tokenString, _ := ur.Auth.TokenAuth.Encode(map[string]interface{}{"id": user.ID})
+	_, tokenString, _ := ur.Auth.TokenAuth.Encode(map[string]interface{}{"id": user.ID, "email": user.Email})
 
-	api.EncodeBody(w, LoginResponse{Token: tokenString})
+	api.EncodeBody(w, LoginResponse{Token: tokenString, Email: user.Email})
 }
 
 func (ur *UserRoutes) RegisterUser(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +49,7 @@ func (ur *UserRoutes) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	_, tokenString, _ := ur.Auth.TokenAuth.Encode(map[string]interface{}{"id": user.ID})
 
-	api.EncodeBody(w, LoginResponse{Token: tokenString})
+	api.EncodeBody(w, LoginResponse{Token: tokenString, Email: user.Email})
 }
 
 func (ur *UserRoutes) GetMe(w http.ResponseWriter, r *http.Request) {

@@ -64,12 +64,15 @@ export default function EventById() {
   const { t } = useTranslation();
   const loaderData = useRouteLoaderData<typeof eventIdLoader>("routes/events.$id");
   const submit = useSubmit();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<{ link: string }>();
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (fetcher.state === 'idle') {
-      console.log(fetcher.data);
+      if (fetcher.data?.link) {
+        const url = `${location.protocol}//${location.host}/events/link/${fetcher.data?.link}`;
+        console.log(url);
+      }
     }
   }, [fetcher.state])
 
@@ -104,7 +107,6 @@ export default function EventById() {
   }
 
   const handleShare = (id: number) => {
-    console.log('share', `/api/share/${loaderData?.event.id}/${id}`);
     fetcher.submit(null, {
       action: `/api/share/${loaderData?.event.id}/${id}`
     });

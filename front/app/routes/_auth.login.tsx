@@ -22,6 +22,7 @@ export async function action({ request }: ActionFunctionArgs) {
       password: body.get('password')
     });
 
+    session.set("email", data.email);
     session.set("token", data.token);
 
     return redirect("/events", {

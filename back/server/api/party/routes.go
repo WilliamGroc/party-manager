@@ -22,6 +22,7 @@ type PartyRoutesInterface interface {
 	GetParty()
 	UpdateParty()
 	DeleteParty()
+	GetPartyFromGuestLink()
 }
 
 func NewPartyRoutes(db *gorm.DB, auth *auth.Auth) *PartyRoutes {
@@ -46,4 +47,6 @@ func (ur *PartyRoutes) SetupRoutes() {
 	ur.Router.Get("/{id}", ur.GetParty)
 	ur.Router.Put("/{id}", ur.UpdateParty)
 	ur.Router.Delete("/{id}", ur.DeleteParty)
+	ur.Router.Get("/guest/link/{link}", ur.GetPartyFromGuestLink)
+
 }

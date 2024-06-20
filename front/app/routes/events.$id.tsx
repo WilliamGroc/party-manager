@@ -4,13 +4,19 @@ import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
 import { Party } from "~/models/party";
+import { getSession } from "~/session";
 import { http } from "~/utils/http";
 
 
-export async function loader({ params }: LoaderFunctionArgs): Promise<{ event: Party }> {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   const { data } = await http.get<Party>(`/party/${params.id}`);
 
-  return { event: data };
+  const session = await getSession(request.headers.get("Cookie"));
+  const userEmail = session.get('email');
+
+  const isGuest = data.guests.some(guest => guest.email === userEmail);
+
+  return { event: data, isGuest };
 }
 
 export default function EventById() {
@@ -37,6 +43,7 @@ export default function EventById() {
       <div className={css({
         w: '100%'
       })}>
+        Is guest: {String(loaderData.isGuest)}
         <Outlet />
       </div>
     </div>

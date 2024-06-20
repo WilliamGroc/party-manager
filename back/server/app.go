@@ -9,12 +9,14 @@ import (
 	"partymanager/server/api/user"
 	"partymanager/server/auth"
 	"partymanager/server/models"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type App struct {
@@ -29,8 +31,21 @@ type AppInterface interface {
 
 func (a *App) Run() {
 	// Database connection
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold:             time.Second, // Slow SQL threshold
+			LogLevel:                  logger.Info, // Log level
+			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
+			ParameterizedQueries:      true,        // Don't include params in the SQL log
+			Colorful:                  false,       // Disable color
+		},
+	)
+
 	uri := os.Getenv("DATABASE_URI")
-	db, err := gorm.Open(postgres.Open(uri), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(uri), &gorm.Config{
+		Logger: newLogger,
+	})
 
 	if err != nil {
 		panic("failed to connect database")

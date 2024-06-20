@@ -26,9 +26,11 @@ func (ur *PartyRoutes) GetAllParty(w http.ResponseWriter, r *http.Request) {
 	id, _ := token.Get("id")
 	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", id)) // Convert id to integer
 
+	email, _ := token.Get("email")
+
 	var parties []models.Party
 
-	ur.DB.Not("deleted_at IS NOT NULL").Where("host_id = ?", idInt).Find(&parties)
+	ur.DB.Model(&models.Party{}).Joins("INNER JOIN guests on guests.party_id = parties.id").Not("deleted_at IS NOT NULL").Where("host_id = ?", idInt).Or("guests.email = ?", email).Find(&parties)
 
 	var response = []PartyResponse{}
 
@@ -83,11 +85,23 @@ func (ur *PartyRoutes) CreateParty(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ur *PartyRoutes) GetParty(w http.ResponseWriter, r *http.Request) {
+	token, err := auth.GetToken(&r.Header, ur.Auth.TokenAuth)
+
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	useremail, _ := token.Get("email")
+	userid, _ := token.Get("id")
+	useridInt, _ := strconv.Atoi(fmt.Sprintf("%v", userid))
+
 	id := chi.URLParam(r, "id")
 
 	var party models.Party
 
-	ur.DB.First(&party, id)
+	ur.DB.Model(&models.Party{}).Joins("INNER JOIN guests on guests.party_id = parties.id").Where("host_id = ?", useridInt).Or("guests.email = ?", useremail).First(&party, id)
 
 	if party.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -204,4 +218,19 @@ func (ur *PartyRoutes) DeleteParty(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Party deleted"))
+}
+
+func (ur *PartyRoutes) GetPartyFromGuestLink(w http.ResponseWriter, r *http.Request) {
+	link := chi.URLParam(r, "link")
+
+	var party models.Party
+	ur.DB.Model(&models.Party{}).Joins("INNER JOIN guests on guests.party_id = parties.id").Where("guests.link_token = ?", link).First(&party)
+
+	if party.ID == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Party not found"))
+		return
+	}
+
+	api.EncodeBody(w, party.ID)
 }
