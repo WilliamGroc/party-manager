@@ -30,13 +30,15 @@ func (ur *PartyRoutes) GetAllParty(w http.ResponseWriter, r *http.Request) {
 
 	var parties []models.Party
 
-	ur.DB.Model(&models.Party{}).Joins("INNER JOIN guests on guests.party_id = parties.id").Not("deleted_at IS NOT NULL").Where("host_id = ?", idInt).Or("guests.email = ?", email).Find(&parties)
+	ur.DB.Model(&models.Party{}).Joins("LEFT JOIN guests on guests.party_id = parties.id").Not("deleted_at IS NOT NULL").Where("host_id = ?", idInt).Or("guests.email = ?", email).Group("parties.id").Find(&parties)
 
 	var response = []PartyResponse{}
 
 	for _, party := range parties {
 		response = append(response, PartyResponse{ID: party.ID, Name: party.Name, Description: party.Description, Location: party.Location, Date: party.Date.String(), HostID: party.HostID})
 	}
+
+	fmt.Println(response)
 
 	api.EncodeBody(w, response)
 }
@@ -101,7 +103,7 @@ func (ur *PartyRoutes) GetParty(w http.ResponseWriter, r *http.Request) {
 
 	var party models.Party
 
-	ur.DB.Model(&models.Party{}).Joins("INNER JOIN guests on guests.party_id = parties.id").Where("host_id = ?", useridInt).Or("guests.email = ?", useremail).First(&party, id)
+	ur.DB.Model(&models.Party{}).Joins("LEFT JOIN guests on guests.party_id = parties.id").Where("(host_id = ? OR guests.email = ?) AND parties.id = ?", useridInt, useremail, id).Group("parties.id").First(&party)
 
 	if party.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)

@@ -18,14 +18,14 @@ type LoaderData = {
 
 export async function loader({ request }: LoaderFunctionArgs): Promise<LoaderData | TypedResponse<never>> {
   const session = await getSession(request.headers.get("Cookie"));
-  
+
   if (session.has('token')) {
-    const locale = await (i18next.getLocale(request) || 'en')	as 'en' | 'fr';
+    const locale = await (i18next.getLocale(request) || 'en') as 'en' | 'fr';
     const { data } = await http.get('/party');
-    return { 
-      isAuthenticated: session.has('token'), 
-      events: data, 
-      locale 
+    return {
+      isAuthenticated: session.has('token'),
+      events: data,
+      locale
     };
   }
 

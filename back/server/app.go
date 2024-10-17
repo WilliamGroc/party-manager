@@ -31,11 +31,11 @@ type AppInterface interface {
 
 func (a *App) Run() {
 	// Database connection
-	newLogger := logger.New(
+	dbLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
 			SlowThreshold:             time.Second, // Slow SQL threshold
-			LogLevel:                  logger.Info, // Log level
+			LogLevel:                  logger.Warn, // Log level
 			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
 			ParameterizedQueries:      true,        // Don't include params in the SQL log
 			Colorful:                  false,       // Disable color
@@ -44,7 +44,7 @@ func (a *App) Run() {
 
 	uri := os.Getenv("DATABASE_URI")
 	db, err := gorm.Open(postgres.Open(uri), &gorm.Config{
-		Logger: newLogger,
+		Logger: dbLogger,
 	})
 
 	if err != nil {

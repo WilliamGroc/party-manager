@@ -1,7 +1,6 @@
 
-import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { ActionFunctionArgs } from "@remix-run/node";
 import { Link, useActionData, useNavigate, useRouteLoaderData, useSubmit } from "@remix-run/react";
-import { Party } from "~/models/party";
 import { dateServerParse } from "~/utils/date";
 import { handleAction, http } from "~/utils/http";
 import { format } from 'date-fns'
@@ -11,13 +10,6 @@ import { loader as eventIdLoader } from "~/routes/events.$id";
 import { DeleteButton } from "~/components/deleteButton";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-
-
-export async function loader({ params }: LoaderFunctionArgs): Promise<{ event: Party }> {
-  const { data } = await http.get<Party>(`/party/${params.id}`);
-
-  return { event: data };
-}
 
 export async function action({ params }: ActionFunctionArgs) {
   return handleAction(async () => {
