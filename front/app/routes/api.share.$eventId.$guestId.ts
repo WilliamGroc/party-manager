@@ -8,8 +8,6 @@ export function loader({ params }: LoaderFunctionArgs) {
 
     const { data } = await http.get(`/guest/party/${eventId}/${guestId}`);
 
-    return {
-      link: data.link
-    }
+    return data;
   });
 }

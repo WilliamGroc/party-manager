@@ -223,3 +223,45 @@ func (ur *GuestRoutes) GetShareLink(w http.ResponseWriter, r *http.Request) {
 
 	api.EncodeBody(w, map[string]string{"link": linkToken})
 }
+
+func (ur *GuestRoutes) AddGuestWithLink(w http.ResponseWriter, r *http.Request) {
+	token, err := auth.GetToken(&r.Header, ur.Auth.TokenAuth)
+
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	userid, _ := token.Get("id")
+	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", userid)) // Convert id to integer
+
+	var user models.User
+	ur.DB.Where("id = ?", idInt).First(&user)
+
+	if user.ID == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("User not found"))
+		return
+	}
+
+	link := chi.URLParam(r, "link")
+
+	var guest models.Guest
+	ur.DB.Where("link_token = ?", link).First(&guest)
+
+	if guest.ID == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Invalid link"))
+		return
+	}
+
+	guest.LinkToken = ""
+	guest.UserID = idInt
+	guest.Email = user.Email
+	guest.Username = user.Username
+
+	ur.DB.Save(&guest)
+
+	api.EncodeBody(w, GuestResponse{ID: guest.ID, Username: guest.Username, Email: guest.Email, Present: guest.Present})
+}

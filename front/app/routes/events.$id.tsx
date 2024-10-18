@@ -1,40 +1,60 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect, TypedResponse } from "@remix-run/node";
 import { Outlet, useLoaderData, useLocation } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
 import { Party } from "~/models/party";
-import { getSession } from "~/session";
+import { decodeToken, validToken } from "~/session";
 import { http } from "~/utils/http";
 
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs): Promise<{ event: Party, isOwner: boolean } | TypedResponse<never>> {
+  const { searchParams } = new URL(request.url);
+
+  if (searchParams.has('invitation')) {
+    const isAuthenticated = await validToken(request);
+    
+    if (isAuthenticated) {
+      await http.put(`/guest/link/${params.id}`)
+    }
+
+    const { data } = await http.get<Party>(`/party/${params.id}/shared`);
+    
+    if(isAuthenticated) 
+      return redirect(`/events/${params.id}`);
+
+    return {
+      event: data,
+      isOwner: false
+    };
+  }
+
+  const { id: userId } = await decodeToken(request);
+
   const { data } = await http.get<Party>(`/party/${params.id}`);
-
-  const session = await getSession(request.headers.get("Cookie"));
-  const userEmail = session.get('email');
-
-  const isGuest = data.guests.some(guest => guest.email === userEmail);
-
-  return { event: data, isGuest };
+  return {
+    event: data,
+    isOwner: data.hostId === userId
+  };
 }
 
 export default function EventById() {
   const { t } = useTranslation();
   const loaderData = useLoaderData<typeof loader>();
   const location = useLocation();
-  let currentTab = location.pathname.split("/").pop() || '';
+
+  let currentTab = `${location.pathname.split("/").pop() || '.'}${location.search}`;
 
   const TABS = [{
     name: t('Description'),
-    path: '',
+    path: `.${location.search}`,
   }, {
     name: `${t('Guests')} (${loaderData.event.guests.length})`,
-    path: 'guests',
+    path: `guests${location.search}`,
   }];
 
   if (!TABS.map(tab => tab.path).includes(currentTab)) {
-    currentTab = '';
+    currentTab = `.${location.search}`;
   }
 
   return (
@@ -43,7 +63,7 @@ export default function EventById() {
       <div className={css({
         w: '100%'
       })}>
-        Is guest: {String(loaderData.isGuest)}
+        Is owner: {String(loaderData.isOwner)}
         <Outlet />
       </div>
     </div>

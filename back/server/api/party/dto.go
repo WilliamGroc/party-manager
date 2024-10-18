@@ -19,7 +19,7 @@ type PartyResponse struct {
 	Description string                `json:"description"`
 	Location    string                `json:"location"`
 	Date        string                `json:"date"`
-	HostID      uint                  `json:"host_id"`
+	HostID      uint                  `json:"hostId"`
 	Guests      []guest.GuestResponse `json:"guests"`
 }
 

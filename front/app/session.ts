@@ -1,5 +1,10 @@
 // app/sessions.ts
 import { createCookieSessionStorage } from "@remix-run/node"; // or cloudflare/deno
+import jwt from "jsonwebtoken";
+
+type Token = {
+  id: number;
+}
 
 type SessionData = {
   email: string;
@@ -33,4 +38,27 @@ const { getSession, commitSession, destroySession } =
     }
   );
 
-export { getSession, commitSession, destroySession };
+async function decodeToken(request: Request): Promise<Token> {
+  const session = await getSession(request.headers.get("Cookie"));
+
+  if(session.has("token")) {
+    return jwt.decode(session.get("token")!) as Token;
+  }
+
+  throw new Error("No token found");
+}
+
+async function validToken(request: Request): Promise<boolean> {
+  try {
+    const session = await getSession(request.headers.get("Cookie"));
+    if(session.has("token")) {
+      return !!jwt.verify(session.get("token")!, import.meta.env.VITE_JWT_SECRET);
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export { getSession, commitSession, destroySession, decodeToken, validToken };

@@ -2,7 +2,7 @@ import { LoaderFunctionArgs, TypedResponse, redirect } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useParams } from "@remix-run/react";
 import { css } from "styled-system/css";
 import { Party } from "~/models/party";
-import { getSession } from "~/session";
+import { validToken } from "~/session";
 import { http } from "~/utils/http";
 import { compareAsc, formatDistanceToNow } from 'date-fns'
 import { dateLocales, dateServerParse } from "~/utils/date";
@@ -17,24 +17,33 @@ type LoaderData = {
 };
 
 export async function loader({ request }: LoaderFunctionArgs): Promise<LoaderData | TypedResponse<never>> {
-  const session = await getSession(request.headers.get("Cookie"));
+  const { searchParams } = new URL(request.url);
+  const locale = await (i18next.getLocale(request) || 'en') as 'en' | 'fr';
 
-  if (session.has('token')) {
-    const locale = await (i18next.getLocale(request) || 'en') as 'en' | 'fr';
+  const isAuthenticated = await validToken(request);
+
+  if (isAuthenticated) {
     const { data } = await http.get('/party');
+
     return {
-      isAuthenticated: session.has('token'),
+      isAuthenticated: true,
       events: data,
       locale
     };
   }
-
+  else if (searchParams.has('invitation')) {
+    return {
+      isAuthenticated: false,
+      events: [],
+      locale
+    };
+  }
   return redirect('/login');
 }
 
 export default function Events() {
   const { t } = useTranslation();
-  const { events, locale } = useLoaderData<LoaderData>();
+  const { events, locale, isAuthenticated } = useLoaderData<LoaderData>();
   const params = useParams<{ id: string }>();
 
   return (
@@ -46,9 +55,11 @@ export default function Events() {
         h: "calc(100vh - 56px)",
         overflow: "auto"
       })}>
-        <div className={css({ w: "160px" })}>
-          <Link to="/events/new"><button>{t('Create Event')}</button></Link>
-        </div>
+        {
+          isAuthenticated && (<div className={css({ w: "160px" })}>
+            <Link to="/events/new"><button>{t('Create Event')}</button></Link>
+          </div>)
+        }
         <div className={css({
           display: "flex",
           flexDir: "column"

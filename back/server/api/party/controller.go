@@ -222,11 +222,20 @@ func (ur *PartyRoutes) DeleteParty(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Party deleted"))
 }
 
-func (ur *PartyRoutes) GetPartyFromGuestLink(w http.ResponseWriter, r *http.Request) {
+func (ur *PartyRoutes) GetSharedParty(w http.ResponseWriter, r *http.Request) {
 	link := chi.URLParam(r, "link")
 
+	var currentGuest models.Guest
+	ur.DB.Where("link_token = ?", link).First(&currentGuest)
+
+	if currentGuest.ID == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Guest not found"))
+		return
+	}
+
 	var party models.Party
-	ur.DB.Model(&models.Party{}).Joins("INNER JOIN guests on guests.party_id = parties.id").Where("guests.link_token = ?", link).First(&party)
+	ur.DB.Where("id = ?", currentGuest.PartyID).First(&party)
 
 	if party.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -234,5 +243,16 @@ func (ur *PartyRoutes) GetPartyFromGuestLink(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	api.EncodeBody(w, party.ID)
+	var guestsList []guest.GuestResponse = []guest.GuestResponse{}
+	guestsList = append(guestsList, guest.GuestResponse{ID: currentGuest.ID, Username: currentGuest.Username, Email: currentGuest.Email, Present: currentGuest.Present})
+
+	api.EncodeBody(w, PartyResponse{
+		ID:          party.ID,
+		Name:        party.Name,
+		Description: party.Description,
+		Location:    party.Location,
+		Date:        party.Date.String(),
+		HostID:      party.HostID,
+		Guests:      guestsList,
+	})
 }

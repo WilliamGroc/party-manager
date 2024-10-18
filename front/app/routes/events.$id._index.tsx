@@ -72,11 +72,13 @@ export default function EventByIdDescription() {
       </label>
     </div>
 
-    <div className={css({ display: 'flex' })}>
-      <Link to={`/events/${loaderData?.event.id}/edit`}><button>{t('Edit')}</button></Link>
-      <div className={css({ ml: '2' })}>
-        <DeleteButton onDelete={handleDelete} />
+    {loaderData?.isOwner && (
+      <div className={css({ display: 'flex' })}>
+        <Link to={`/events/${loaderData?.event.id}/edit`}><button>{t('Edit')}</button></Link>
+        <div className={css({ ml: '2' })}>
+          <DeleteButton onDelete={handleDelete} />
+        </div>
       </div>
-    </div>
+    )}
   </div>
 }

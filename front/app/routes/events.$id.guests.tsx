@@ -6,7 +6,7 @@ import { css } from "styled-system/css";
 import { z } from "zod";
 import { GuestRow } from "~/components/guestRow";
 import { loader as eventIdLoader } from "~/routes/events.$id";
-import { Present } from "~/models/guest";
+import { Guest, Present } from "~/models/guest";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -17,6 +17,8 @@ const actionPostValidator = z.object({
 
 const actionPutValidator = z.object({
   present: z.string(),
+  guestId: z.number(),
+  eventId: z.number()
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -48,10 +50,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case 'PUT': {
         const putData = await request.formData();
         const putBody = actionPutValidator.parse({
-          present: putData.get('present') as Present
+          present: putData.get('present') as Present,
+          guestId: Number(putData.get('guestId')),
+          eventId: Number(putData.get('eventId'))
         });
 
-        await http.put(`/guest/${putData.get('id')}/party/${params.id}`, putBody);
+        await http.put(`/guest/${putData.get('guestId')}/party/${putData.get('eventId')}`, putBody);
 
         return true;
       }
@@ -64,17 +68,16 @@ export default function EventById() {
   const { t } = useTranslation();
   const loaderData = useRouteLoaderData<typeof eventIdLoader>("routes/events.$id");
   const submit = useSubmit();
-  const fetcher = useFetcher<{ link: string }>();
+  const shareFetcher = useFetcher<{ link: string }>();
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (fetcher.state === 'idle') {
-      if (fetcher.data?.link) {
-        const url = `${location.protocol}//${location.host}/events/link/${fetcher.data?.link}`;
-        console.log(url);
-      }
+    if (shareFetcher.state === 'idle') {
+      console.log(shareFetcher.data);
+      const url = `http://localhost:5173/events/${shareFetcher.data?.link}?invitation`;
+      console.log(url);
     }
-  }, [fetcher.state])
+  }, [shareFetcher.state])
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,9 +99,11 @@ export default function EventById() {
     });
   }
 
-  const handleSetPresence = (id: number, present: Present) => {
+  const handleSetPresence = (guestId: number, present: Present) => {
+    if (!loaderData?.event.id) return;
     const formData = new FormData();
-    formData.append('id', String(id));
+    formData.append('eventId', String(loaderData.event.id));
+    formData.append('guestId', String(guestId));
     formData.append('present', present);
 
     submit(formData, {
@@ -107,40 +112,43 @@ export default function EventById() {
   }
 
   const handleShare = (id: number) => {
-    fetcher.submit(null, {
+    shareFetcher.submit(null, {
       action: `/api/share/${loaderData?.event.id}/${id}`
     });
   }
 
   return <div>
-    <Form className={css({
-      display: 'flex',
-      "& > label": {
-        marginRight: "1rem"
-      }
-    })}
-      ref={formRef}
-      onSubmit={handleAdd}
-    >
-      <label>
-        {t('Username')}
-        <input type="text" name="username" />
-      </label>
-      <label>
-        {t('Email')}
-        <input type="text" name="email" />
-      </label>
-      <div className={css({ width: '140px', display: 'flex', alignItems: 'flex-end' })}>
-        <button type="submit">{t('Add')}</button>
-      </div>
-    </Form>
+    {loaderData?.isOwner && (
+      <Form className={css({
+        display: 'flex',
+        "& > label": {
+          marginRight: "1rem"
+        }
+      })}
+        ref={formRef}
+        onSubmit={handleAdd}
+      >
+        <label>
+          {t('Username')}
+          <input type="text" name="username" />
+        </label>
+        <label>
+          {t('Email')}
+          <input type="text" name="email" />
+        </label>
+        <div className={css({ width: '140px', display: 'flex', alignItems: 'flex-end' })}>
+          <button type="submit">{t('Add')}</button>
+        </div>
+      </Form>
+    )}
     <div>
-      {loaderData?.event.guests.map(guest => <GuestRow
+      {loaderData?.event.guests.map((guest: Guest) => <GuestRow
         key={guest.id}
         guest={guest}
         onDelete={handleDelete}
         onSetPresence={handleSetPresence}
         onShare={handleShare}
+        isOwner={loaderData.isOwner}
       />)}
     </div>
   </div>

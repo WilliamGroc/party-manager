@@ -4,6 +4,7 @@ import { DeleteButton } from "../deleteButton";
 
 type Props = {
   guest: Guest;
+  isOwner: boolean;
   onDelete: (id: number) => void;
   onSetPresence: (id: number, present: Present) => void;
   onShare: (id: number) => void;
@@ -15,7 +16,7 @@ const buttonStyle = css({
   minWidth: '0px!',
 })
 
-export function GuestRow({ guest, onSetPresence, onDelete, onShare }: Props) {
+export function GuestRow({ guest, onSetPresence, onDelete, onShare, isOwner }: Props) {
   return <div className={css({
     display: 'flex',
     justifyContent: 'space-between',
@@ -92,25 +93,27 @@ export function GuestRow({ guest, onSetPresence, onDelete, onShare }: Props) {
           <i className="ri-question-mark"></i>
         </button>
       </div>
-      <div className={css({ ml: '1' })}>
-        <button
-          className={cx(
-            buttonStyle,
-            css({
-              bgColor: 'green!',
-              '&:hover': {
-                bgColor: 'dgreen!'
-              },
-              color: 'white',
-              borderRadius: '0!'
-            }))}
-          onClick={() => onShare(guest.id)}>
-          <i className="ri-share-line"></i>
-        </button>
-      </div>
-      <div className={css({ ml: '1' })}>
-        <DeleteButton onDelete={() => onDelete(guest.id)} noBorderRadius />
-      </div>
+      {isOwner && <>
+        <div className={css({ ml: '1' })}>
+          <button
+            className={cx(
+              buttonStyle,
+              css({
+                bgColor: 'green!',
+                '&:hover': {
+                  bgColor: 'dgreen!'
+                },
+                color: 'white',
+                borderRadius: '0!'
+              }))}
+            onClick={() => onShare(guest.id)}>
+            <i className="ri-share-line"></i>
+          </button>
+        </div>
+        <div className={css({ ml: '1' })}>
+          <DeleteButton onDelete={() => onDelete(guest.id)} noBorderRadius />
+        </div>
+      </>}
     </div>
   </div >
 }
