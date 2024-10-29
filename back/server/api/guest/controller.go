@@ -101,14 +101,16 @@ func (ur *GuestRoutes) UpdateGuest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userid, _ := token.Get("id")
-	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", userid)) // Convert id to integer
+	user_id_s, _ := token.Get("id")
+	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", user_id_s)) // Convert id to integer
 
-	id := chi.URLParam(r, "partyId")
-	partyId, _ := strconv.Atoi(id)
+	party_id_s := chi.URLParam(r, "partyId")
+	party_id_i, _ := strconv.Atoi(party_id_s)
 
+	fmt.Printf("token: %v \n", token)
+	fmt.Printf("user id: %v, party id: %v \n", user_id_i, party_id_i)
 	var party models.Party
-	ur.DB.Where(map[string]interface{}{"host_id": idInt, "id": partyId}).First(&party)
+	ur.DB.Model(&models.Party{}).Joins("LEFT JOIN guests on guests.party_id = parties.id").Where("(host_id = ? OR guests.user_id = ? ) AND parties.id = ?", user_id_i, user_id_i, party_id_i).Group("parties.id").First(&party)
 
 	if party.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -116,14 +118,14 @@ func (ur *GuestRoutes) UpdateGuest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id = chi.URLParam(r, "id")
-	guestId, _ := strconv.Atoi(id)
+	guestid_s := chi.URLParam(r, "guestId")
+	guest_id_i, _ := strconv.Atoi(guestid_s)
 
 	var body UpdateGuestRequest
 	api.DecodeBody(r, &body)
 
 	var guest models.Guest
-	ur.DB.Where("id = ?", guestId).First(&guest)
+	ur.DB.Where("id = ?", guest_id_i).First(&guest)
 
 	if guest.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -185,17 +187,18 @@ func (ur *GuestRoutes) GetShareLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userid, _ := token.Get("id")
-	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", userid)) // Convert id to integer
+	user_id_s, _ := token.Get("id")
+	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", user_id_s)) // Convert id to integer
 
-	party_id := chi.URLParam(r, "partyId")
-	partyId, _ := strconv.Atoi(party_id)
+	party_id_s := chi.URLParam(r, "partyId")
+	party_id_i, _ := strconv.Atoi(party_id_s)
 
-	guest_id := chi.URLParam(r, "guestId")
-	guestId, _ := strconv.Atoi(guest_id)
+	guest_id_s := chi.URLParam(r, "guestId")
+	guest_id_i, _ := strconv.Atoi(guest_id_s)
 
+	fmt.Printf("user id: %v, party id: %v, guest id: %v \n", user_id_i, party_id_i, guest_id_i)
 	var party models.Party
-	ur.DB.Where(map[string]interface{}{"host_id": idInt, "id": partyId}).First(&party)
+	ur.DB.Where(map[string]interface{}{"host_id": user_id_i, "id": party_id_i}).First(&party)
 
 	if party.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -203,7 +206,7 @@ func (ur *GuestRoutes) GetShareLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	baseLink := fmt.Sprintf("party/%d/%d", partyId, guestId)
+	baseLink := fmt.Sprintf("party/%d/%d", party_id_i, guest_id_i)
 
 	hasher := sha1.New()
 	hasher.Write([]byte(baseLink))
@@ -211,7 +214,7 @@ func (ur *GuestRoutes) GetShareLink(w http.ResponseWriter, r *http.Request) {
 	linkToken := hex.EncodeToString(hasher.Sum(nil))
 
 	var guest models.Guest
-	ur.DB.Where("id = ?", guestId).First(&guest)
+	ur.DB.Where("id = ?", guest_id_i).First(&guest)
 
 	if guest.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -237,6 +240,8 @@ func (ur *GuestRoutes) AddGuestWithLink(w http.ResponseWriter, r *http.Request) 
 	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", userid)) // Convert id to integer
 
 	var user models.User
+
+	fmt.Println("user id from token: %v", idInt)
 	ur.DB.Where("id = ?", idInt).First(&user)
 
 	if user.ID == 0 {
@@ -263,5 +268,11 @@ func (ur *GuestRoutes) AddGuestWithLink(w http.ResponseWriter, r *http.Request) 
 
 	ur.DB.Save(&guest)
 
-	api.EncodeBody(w, GuestResponse{ID: guest.ID, Username: guest.Username, Email: guest.Email, Present: guest.Present})
+	api.EncodeBody(w, GuestResponse{
+		ID:       guest.ID,
+		Username: guest.Username,
+		Email:    guest.Email,
+		Present:  guest.Present,
+		UserId:   guest.UserID,
+	})
 }

@@ -5,30 +5,13 @@ import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
-import { commitSession, getSession } from "~/session";
-import { http } from "~/utils/http";
+import { authenticator } from "~/services/auth.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
-
-    const body = await request.formData();
-
-    const session = await getSession(
-      request.headers.get("Cookie")
-    );
-
-    const { data } = await http.post('/user/login', {
-      email: body.get('email'),
-      password: body.get('password')
-    });
-
-    session.set("email", data.email);
-    session.set("token", data.token);
-
-    return redirect("/events", {
-      headers: {
-        "Set-Cookie": await commitSession(session),
-      },
+    return authenticator.authenticate("user-pass", request, {
+      successRedirect: "/events",
+      failureRedirect: "/login",
     });
   } catch (error) {
     if (error instanceof AxiosError) {

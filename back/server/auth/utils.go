@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -14,6 +15,8 @@ func GetToken(header *http.Header, tokenAuth *jwtauth.JWTAuth) (jwt.Token, error
 	if authorisation == "" {
 		return nil, errors.New("no token found")
 	}
+
+	fmt.Printf("Authorisation: %s\n", authorisation)
 
 	splitToken := strings.Split(authorisation, "Bearer ")
 	if len(splitToken) != 2 {

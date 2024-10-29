@@ -11,9 +11,9 @@ import { DeleteButton } from "~/components/deleteButton";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-export async function action({ params }: ActionFunctionArgs) {
+export async function action({ params, request }: ActionFunctionArgs) {
   return handleAction(async () => {
-    await http.delete(`/party/${params.id}`);
+    await http.delete(request, `/party/${params.id}`);
     return { success: true }
   });
 }

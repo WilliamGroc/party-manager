@@ -14,11 +14,11 @@ import styles from "./styles.css?url"
 import { ActionFunctionArgs, LinksFunction, LoaderFunctionArgs, MetaFunction, json, redirect } from "@remix-run/node";
 
 import rootStyle from './root.module.css';
-import { getSession } from "./session";
-import { setAuthorizationToken } from "./utils/http";
+import { getSession } from "./services/session.server";
 import { Navbar } from "./components/navbar";
 import i18next, { localeCookie } from "./i18n/i18next.server";
 import { useChangeLanguage } from "remix-i18next/react";
+import { authenticator } from "./services/auth.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: panda },
@@ -37,17 +37,12 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const locale = await i18next.getLocale(request) || 'en'	;
+  const locale = await i18next.getLocale(request) || 'en';
 
   try {
-    const session = await getSession(request.headers.get("Cookie"));
+    const user = await authenticator.isAuthenticated(request);
 
-    const token = session.get('token');
-
-    if (token)
-      setAuthorizationToken(token);
-
-    return json({ isAuthenticated: !!token, locale }, { headers: { "Set-Cookie": await localeCookie.serialize(locale) } });
+    return json({ isAuthenticated: !!user, locale }, { headers: { "Set-Cookie": await localeCookie.serialize(locale) } });
   } catch (e) {
     console.error(e);
     return { isAuthenticated: false, locale };

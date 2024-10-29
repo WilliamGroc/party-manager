@@ -4,37 +4,40 @@ import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
 import { Party } from "~/models/party";
-import { decodeToken, validToken } from "~/session";
+import { authenticator } from "~/services/auth.server";
+import { decodeToken } from "~/services/session.server";
 import { http } from "~/utils/http";
 
 
-export async function loader({ params, request }: LoaderFunctionArgs): Promise<{ event: Party, isOwner: boolean } | TypedResponse<never>> {
+export async function loader({ params, request }: LoaderFunctionArgs): Promise<{ event: Party, isOwner: boolean, userId: number } | TypedResponse<never>> {
   const { searchParams } = new URL(request.url);
 
+  const user = await authenticator.isAuthenticated(request);
+
   if (searchParams.has('invitation')) {
-    const isAuthenticated = await validToken(request);
-    
-    if (isAuthenticated) {
-      await http.put(`/guest/link/${params.id}`)
+    if (user) {
+      await http.put(request, `/guest/link/${params.id}`)
     }
 
-    const { data } = await http.get<Party>(`/party/${params.id}/shared`);
-    
-    if(isAuthenticated) 
+    const { data } = await http.get<Party>(request, `/party/${params.id}/shared`);
+
+    if (user)
       return redirect(`/events/${params.id}`);
 
     return {
       event: data,
-      isOwner: false
+      isOwner: false,
+      userId: 0
     };
   }
 
-  const { id: userId } = await decodeToken(request);
+  const { id: userId } = await decodeToken(user!.token);
 
-  const { data } = await http.get<Party>(`/party/${params.id}`);
+  const { data } = await http.get<Party>(request, `/party/${params.id}`);
   return {
     event: data,
-    isOwner: data.hostId === userId
+    isOwner: data.hostId === userId,
+    userId
   };
 }
 

@@ -3,16 +3,15 @@ import { Outlet, useLocation } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
-import { getSession } from "~/session";
+import { authenticator } from "~/services/auth.server";
+import { getSession } from "~/services/session.server";
 
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const session = await getSession(request.headers.get("Cookie"));
-
-  if (session.has("token"))
-    return redirect("/events");
-
-  return null;
+  // If the user is already authenticated redirect to /dashboard directly
+  return authenticator.isAuthenticated(request, {
+    successRedirect: "/events",
+  });
 }
 
 export default function Auth() {

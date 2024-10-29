@@ -16,6 +16,7 @@ export function DeleteButton({ onDelete, noBorderRadius }: Props) {
         bgColor: 'dred!'
       },
     })}
+    title="delete"
     onClick={onDelete}
   >
     <i className={`ri-delete-bin-line`}></i>

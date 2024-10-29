@@ -9,9 +9,8 @@ import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
 import { useTranslation } from "react-i18next";
 
-export async function loader({ params }: LoaderFunctionArgs): Promise<{ event: Party }> {
-  const { data } = await http.get(`/party/${params.id}`);
-
+export async function loader({ params, request }: LoaderFunctionArgs): Promise<{ event: Party }> {
+  const { data } = await http.get<Party>(request, `/party/${params.id}`);
   return { event: data };
 }
 
@@ -34,7 +33,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       location: formData.get('location') as string,
     });
 
-    await http.put(`/party/${id}`, body);
+    await http.put(request, `/party/${id}`, body);
 
     return redirect(`/events/${id}`);
   });

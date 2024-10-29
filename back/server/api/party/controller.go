@@ -38,8 +38,6 @@ func (ur *PartyRoutes) GetAllParty(w http.ResponseWriter, r *http.Request) {
 		response = append(response, PartyResponse{ID: party.ID, Name: party.Name, Description: party.Description, Location: party.Location, Date: party.Date.String(), HostID: party.HostID})
 	}
 
-	fmt.Println(response)
-
 	api.EncodeBody(w, response)
 }
 
@@ -121,6 +119,7 @@ func (ur *PartyRoutes) GetParty(w http.ResponseWriter, r *http.Request) {
 			Username: guestItem.Username,
 			Email:    guestItem.Email,
 			Present:  guestItem.Present,
+			UserId:   guestItem.UserID,
 		})
 	}
 
@@ -244,7 +243,13 @@ func (ur *PartyRoutes) GetSharedParty(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var guestsList []guest.GuestResponse = []guest.GuestResponse{}
-	guestsList = append(guestsList, guest.GuestResponse{ID: currentGuest.ID, Username: currentGuest.Username, Email: currentGuest.Email, Present: currentGuest.Present})
+	guestsList = append(guestsList, guest.GuestResponse{
+		ID:       currentGuest.ID,
+		Username: currentGuest.Username,
+		Email:    currentGuest.Email,
+		Present:  currentGuest.Present,
+		UserId:   currentGuest.UserID,
+	})
 
 	api.EncodeBody(w, PartyResponse{
 		ID:          party.ID,

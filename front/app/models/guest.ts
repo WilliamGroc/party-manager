@@ -3,6 +3,7 @@ export interface Guest {
   username: string;
   email: string;
   present: Present;
+  userId: number;
 }
 
 export enum Present {

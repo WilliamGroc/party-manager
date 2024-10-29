@@ -27,7 +27,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const body = validator.parse(data);
 
-    const { data: responseData } = await http.post<{ id: number }>('/party', body);
+    const { data: responseData } = await http.post<{ id: number }>(request, '/party', body);
 
     return redirect(`/events/${responseData.id}`);
   })

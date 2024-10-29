@@ -17,8 +17,6 @@ const actionPostValidator = z.object({
 
 const actionPutValidator = z.object({
   present: z.string(),
-  guestId: z.number(),
-  eventId: z.number()
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -35,7 +33,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         if (body.email)
           z.string().email().parse(body.email);
 
-        await http.post(`/guest/party/${params.id}`, body);
+        await http.post(request, `/guest/party/${params.id}`, body);
 
         return true;
       }
@@ -43,7 +41,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
         const deleteData = await request.formData();
 
-        await http.delete(`/guest/${deleteData.get('id')}/party/${params.id}`);
+        await http.delete(request, `/guest/${deleteData.get('id')}/party/${params.id}`);
 
         return true;
       }
@@ -51,11 +49,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
         const putData = await request.formData();
         const putBody = actionPutValidator.parse({
           present: putData.get('present') as Present,
-          guestId: Number(putData.get('guestId')),
-          eventId: Number(putData.get('eventId'))
         });
 
-        await http.put(`/guest/${putData.get('guestId')}/party/${putData.get('eventId')}`, putBody);
+        await http.put(request, `/guest/${putData.get('guestId')}/party/${putData.get('eventId')}`, putBody);
 
         return true;
       }
@@ -73,7 +69,6 @@ export default function EventById() {
 
   useEffect(() => {
     if (shareFetcher.state === 'idle') {
-      console.log(shareFetcher.data);
       const url = `http://localhost:5173/events/${shareFetcher.data?.link}?invitation`;
       console.log(url);
     }
@@ -141,10 +136,12 @@ export default function EventById() {
         </div>
       </Form>
     )}
+    {loaderData?.userId}
     <div>
       {loaderData?.event.guests.map((guest: Guest) => <GuestRow
         key={guest.id}
         guest={guest}
+        himself={loaderData.userId === guest.userId}
         onDelete={handleDelete}
         onSetPresence={handleSetPresence}
         onShare={handleShare}

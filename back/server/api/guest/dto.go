@@ -10,6 +10,7 @@ type GuestResponse struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Present  string `json:"present"`
+	UserId   int    `json:"userId"`
 }
 
 type UpdateGuestRequest struct {

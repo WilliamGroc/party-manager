@@ -2,13 +2,13 @@ import { LoaderFunctionArgs, TypedResponse, redirect } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useParams } from "@remix-run/react";
 import { css } from "styled-system/css";
 import { Party } from "~/models/party";
-import { validToken } from "~/session";
 import { http } from "~/utils/http";
 import { compareAsc, formatDistanceToNow } from 'date-fns'
 import { dateLocales, dateServerParse } from "~/utils/date";
 import { useTranslation } from "react-i18next";
 import i18next from "~/i18n/i18next.server";
 import { enUS } from "date-fns/locale/en-US";
+import { authenticator } from "~/services/auth.server";
 
 type LoaderData = {
   isAuthenticated: boolean;
@@ -16,29 +16,33 @@ type LoaderData = {
   locale: 'en' | 'fr';
 };
 
-export async function loader({ request }: LoaderFunctionArgs): Promise<LoaderData | TypedResponse<never>> {
+export async function loader({ request }: LoaderFunctionArgs): Promise<any> {
   const { searchParams } = new URL(request.url);
   const locale = await (i18next.getLocale(request) || 'en') as 'en' | 'fr';
 
-  const isAuthenticated = await validToken(request);
+  try {
+    const user = await authenticator.isAuthenticated(request);
+    if (user) {
+      const { data } = await http.get(request, '/party');
 
-  if (isAuthenticated) {
-    const { data } = await http.get('/party');
-
-    return {
-      isAuthenticated: true,
-      events: data,
-      locale
-    };
+      return {
+        isAuthenticated: true,
+        events: data,
+        locale
+      };
+    }
+    else if (searchParams.has('invitation')) {
+      return {
+        isAuthenticated: false,
+        events: [],
+        locale
+      };
+    }
+    return redirect('/login');
+  } catch (e) {
+    console.error(e);
+    return redirect('/login');
   }
-  else if (searchParams.has('invitation')) {
-    return {
-      isAuthenticated: false,
-      events: [],
-      locale
-    };
-  }
-  return redirect('/login');
 }
 
 export default function Events() {
