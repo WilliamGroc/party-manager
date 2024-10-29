@@ -41,16 +41,3 @@ export const http = {
     return client.delete<T>(url, await useParams(request, params));
   }
 }
-export async function handleAction<T>(fn: () => Promise<T>) {
-  try {
-    return fn();
-  } catch (error) {
-    console.log(error)
-    if (error instanceof z.ZodError)
-      return json({ error: error.errors }, { status: 400 });
-    else if (error instanceof AxiosError)
-      return json({ error: error.response?.data }, { status: error.response?.status });
-    else
-      return json({ error: 'Internal server error' }, { status: 500 });
-  }
-}

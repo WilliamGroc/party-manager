@@ -24,17 +24,17 @@ export default function handleRequest(
 ) {
   return isbot(request.headers.get("user-agent") || "")
     ? handleBotRequest(
-        request,
-        responseStatusCode,
-        responseHeaders,
-        remixContext,
-      )
+      request,
+      responseStatusCode,
+      responseHeaders,
+      remixContext,
+    )
     : handleBrowserRequest(
-        request,
-        responseStatusCode,
-        responseHeaders,
-        remixContext,
-      );
+      request,
+      responseStatusCode,
+      responseHeaders,
+      remixContext,
+    );
 }
 
 async function handleBotRequest(
@@ -89,7 +89,7 @@ async function handleBotRequest(
           // errors encountered during initial shell rendering since they'll
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
-            console.error(error);
+            console.error('on error bot', error);
           }
         },
       },
@@ -151,7 +151,7 @@ async function handleBrowserRequest(
           // errors encountered during initial shell rendering since they'll
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
-            console.error(error);
+            console.error('on error browser', error);
           }
         },
       },

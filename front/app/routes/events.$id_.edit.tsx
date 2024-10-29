@@ -2,16 +2,20 @@ import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/nod
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import { Party } from "~/models/party";
 import { dateServerParse, dateToServerFormat } from "~/utils/date";
-import { handleAction, http } from "~/utils/http";
+import { http } from "~/utils/http";
 import { format } from 'date-fns'
 import { z } from "zod";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
 import { useTranslation } from "react-i18next";
+import { handleAction, handleLoader } from "~/utils/handle";
+import { ErrorCmp } from "~/components/error";
 
-export async function loader({ params, request }: LoaderFunctionArgs): Promise<{ event: Party }> {
-  const { data } = await http.get<Party>(request, `/party/${params.id}`);
-  return { event: data };
+export async function loader({ params, request }: LoaderFunctionArgs) {
+  return handleLoader<{ event: Party }>(async () => {
+    const { data } = await http.get<Party>(request, `/party/${params.id}`);
+    return { event: data };
+  });
 }
 
 const bodyValidator = z.object({
@@ -41,7 +45,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function UpdateEvent() {
   const { t } = useTranslation();
-  const { event } = useLoaderData<{ event: Party }>();
+  const data = useLoaderData<typeof loader>();
   const actionData = useLoaderData<DataResponse<null>>();
   const submit = useSubmit();
 
@@ -56,22 +60,24 @@ export default function UpdateEvent() {
     submit(formData, { method: 'post' });
   }
 
+  if (!("event" in data)) return <ErrorCmp error={data.error} />;
+
   return <Form onSubmit={handleSubmit}>
     <label>
       {t('Name')}
-      <input type="text" key={`name_${event.id}`} name="name" defaultValue={event.name} />
+      <input type="text" key={`name_${data.event.id}`} name="name" defaultValue={data.event.name} />
     </label>
     <label>
       {t('Description')}
-      <input type="text" key={`description_${event.id}`} name="description" defaultValue={event.description} />
+      <input type="text" key={`description_${data.event.id}`} name="description" defaultValue={data.event.description} />
     </label>
     <label>
       {t('Date')}
-      <input type="datetime-local" key={`date_${event.id}`} name="date" defaultValue={format(dateServerParse(event.date), 'yyyy-MM-dd HH:mm')} />
+      <input type="datetime-local" key={`date_${data.event.id}`} name="date" defaultValue={format(dateServerParse(data.event.date), 'yyyy-MM-dd HH:mm')} />
     </label>
     <label>
       {t('Location')}
-      <input type="text" key={`location_${event.id}`} name="location" defaultValue={event.location} />
+      <input type="text" key={`location_${data.event.id}`} name="location" defaultValue={data.event.location} />
     </label>
     <FormError error={actionData?.error} />
     <button type="submit">{t('Update')}</button>

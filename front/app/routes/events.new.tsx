@@ -5,7 +5,8 @@ import { z } from "zod";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
 import { dateToServerFormat } from "~/utils/date";
-import { handleAction, http } from "~/utils/http";
+import { handleAction } from "~/utils/handle";
+import { http } from "~/utils/http";
 
 const validator = z.object({
   name: z.string().min(1),

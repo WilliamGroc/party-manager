@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { ActionFunctionArgs, json } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";

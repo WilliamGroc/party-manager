@@ -38,4 +38,4 @@ async function main() {
   });
 }
 
-main().catch((error) => console.error(error));
+main().catch((error) => console.error('catch client entry', error));

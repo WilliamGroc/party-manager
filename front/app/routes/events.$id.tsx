@@ -2,49 +2,55 @@ import { LoaderFunctionArgs, redirect, TypedResponse } from "@remix-run/node";
 import { Outlet, useLoaderData, useLocation } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
+import { ErrorCmp } from "~/components/error";
 import { Tabs } from "~/components/tabs";
 import { Party } from "~/models/party";
 import { authenticator } from "~/services/auth.server";
 import { decodeToken } from "~/services/session.server";
+import { handleErrorLog, handleLoader } from "~/utils/handle";
 import { http } from "~/utils/http";
 
 
-export async function loader({ params, request }: LoaderFunctionArgs): Promise<{ event: Party, isOwner: boolean, userId: number } | TypedResponse<never>> {
-  const { searchParams } = new URL(request.url);
+export async function loader({ params, request }: LoaderFunctionArgs) {
+  return handleLoader<{ event: Party, isOwner: boolean, userId: number } | TypedResponse<never>>(async () => {
+    const { searchParams } = new URL(request.url);
 
-  const user = await authenticator.isAuthenticated(request);
+    const user = await authenticator.isAuthenticated(request);
 
-  if (searchParams.has('invitation')) {
-    if (user) {
-      await http.put(request, `/guest/link/${params.id}`)
+    if (searchParams.has('invitation')) {
+      if (user) {
+        await http.put(request, `/guest/link/${params.id}`)
+      }
+
+      const { data } = await http.get<Party>(request, `/party/${params.id}/shared`);
+
+      if (user)
+        return redirect(`/events/${params.id}`);
+
+      return {
+        event: data,
+        isOwner: false,
+        userId: 0
+      };
     }
 
-    const { data } = await http.get<Party>(request, `/party/${params.id}/shared`);
+    const { id: userId } = await decodeToken(user!.token);
 
-    if (user)
-      return redirect(`/events/${params.id}`);
-
+    const { data } = await http.get<Party>(request, `/party/${params.id}`);
     return {
       event: data,
-      isOwner: false,
-      userId: 0
+      isOwner: data.hostId === userId,
+      userId
     };
-  }
-
-  const { id: userId } = await decodeToken(user!.token);
-
-  const { data } = await http.get<Party>(request, `/party/${params.id}`);
-  return {
-    event: data,
-    isOwner: data.hostId === userId,
-    userId
-  };
+  });
 }
 
 export default function EventById() {
   const { t } = useTranslation();
   const loaderData = useLoaderData<typeof loader>();
   const location = useLocation();
+
+  if (!("event" in loaderData)) return <ErrorCmp error={loaderData.error} />;
 
   let currentTab = `${location.pathname.split("/").pop() || '.'}${location.search}`;
 

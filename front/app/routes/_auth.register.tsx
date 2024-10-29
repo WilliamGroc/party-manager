@@ -1,10 +1,10 @@
-import { ActionFunction, json, redirect } from "@remix-run/node";
+import { ActionFunction, json } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
-import { commitSession, getSession } from "~/services/session.server";
+import { authenticator, SessionUser } from "~/services/auth.server";
 import { http } from "~/utils/http";
 
 export const action: ActionFunction = async ({ request }) => {
@@ -20,15 +20,12 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  const response = await http.post('/user/register', {
+  const response = await http.post<SessionUser>(request, '/user/register', {
     username: body.get('username'),
     email: body.get('email'),
     password: body.get('password')
   });
 
-  const session = await getSession(
-    request.headers.get("Cookie")
-  );
 
   if (response.status !== 200) {
     return json({ error: 'Invalid username or email' }, {
@@ -37,13 +34,8 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  session.set("email", response.data.email);
-  session.set("token", response.data.token);
-
-  return redirect("/events", {
-    headers: {
-      "Set-Cookie": await commitSession(session),
-    },
+  return authenticator.authenticate('user-pass', request, {
+    successRedirect: '/events'
   });
 }
 

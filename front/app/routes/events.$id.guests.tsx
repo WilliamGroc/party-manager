@@ -1,7 +1,7 @@
 
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Form, useFetcher, useRouteLoaderData, useSubmit } from "@remix-run/react";
-import { handleAction, http } from "~/utils/http";
+import { http } from "~/utils/http";
 import { css } from "styled-system/css";
 import { z } from "zod";
 import { GuestRow } from "~/components/guestRow";
@@ -9,6 +9,8 @@ import { loader as eventIdLoader } from "~/routes/events.$id";
 import { Guest, Present } from "~/models/guest";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { handleAction } from "~/utils/handle";
+import { ErrorCmp } from "~/components/error";
 
 const actionPostValidator = z.object({
   username: z.string(),
@@ -66,6 +68,8 @@ export default function EventById() {
   const submit = useSubmit();
   const shareFetcher = useFetcher<{ link: string }>();
   const formRef = useRef<HTMLFormElement>(null);
+
+  if (!loaderData || !("event" in loaderData)) return <ErrorCmp error={loaderData?.error || 'No event data'} />;
 
   useEffect(() => {
     if (shareFetcher.state === 'idle') {

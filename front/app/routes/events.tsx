@@ -9,6 +9,8 @@ import { useTranslation } from "react-i18next";
 import i18next from "~/i18n/i18next.server";
 import { enUS } from "date-fns/locale/en-US";
 import { authenticator } from "~/services/auth.server";
+import { AxiosError } from "axios";
+import { handleErrorLog, handleLoader } from "~/utils/handle";
 
 type LoaderData = {
   isAuthenticated: boolean;
@@ -16,14 +18,14 @@ type LoaderData = {
   locale: 'en' | 'fr';
 };
 
-export async function loader({ request }: LoaderFunctionArgs): Promise<any> {
-  const { searchParams } = new URL(request.url);
-  const locale = await (i18next.getLocale(request) || 'en') as 'en' | 'fr';
+export async function loader({ request }: LoaderFunctionArgs) {
+  return handleLoader<LoaderData | TypedResponse<never>>(async () => {
+    const { searchParams } = new URL(request.url);
+    const locale = await (i18next.getLocale(request) || 'en') as 'en' | 'fr';
 
-  try {
     const user = await authenticator.isAuthenticated(request);
     if (user) {
-      const { data } = await http.get(request, '/party');
+      const { data } = await http.get<Party[]>(request, '/party');
 
       return {
         isAuthenticated: true,
@@ -38,11 +40,9 @@ export async function loader({ request }: LoaderFunctionArgs): Promise<any> {
         locale
       };
     }
+
     return redirect('/login');
-  } catch (e) {
-    console.error(e);
-    return redirect('/login');
-  }
+  });
 }
 
 export default function Events() {

@@ -44,7 +44,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     return json({ isAuthenticated: !!user, locale }, { headers: { "Set-Cookie": await localeCookie.serialize(locale) } });
   } catch (e) {
-    console.error(e);
+    console.error('root', e);
     return { isAuthenticated: false, locale };
   }
 }
