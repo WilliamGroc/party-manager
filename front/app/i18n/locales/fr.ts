@@ -16,7 +16,7 @@ export default {
   Location: "Lieu",
   Update: "Mettre à jour",
   Edit: "Modifier",
-  Add: "Ajouter",
+  AddGuest: "Ajouter un invité",
   Guests: "Invités",
   Create: "Créer",
   "Create Event": "Créer un événement",

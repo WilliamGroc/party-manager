@@ -59,7 +59,7 @@ export default function Events() {
         overflow: "auto"
       })}>
         {
-          isAuthenticated && (<div className={css({ w: "160px" })}>
+          isAuthenticated && (<div className={css({ w: "184px" })}>
             <Link to="/events/new"><button>{t('Create Event')}</button></Link>
           </div>)
         }

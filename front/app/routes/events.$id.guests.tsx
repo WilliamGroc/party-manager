@@ -130,8 +130,8 @@ export default function EventById() {
           {t('Username')}
           <input type="text" name="username" />
         </label>
-        <div className={css({ width: '140px', display: 'flex', alignItems: 'flex-end' })}>
-          <button type="submit">{t('Add')}</button>
+        <div className={css({ width: '164px', display: 'flex', alignItems: 'flex-end' })}>
+          <button type="submit">{t('AddGuest')}</button>
         </div>
       </Form>
     )}
