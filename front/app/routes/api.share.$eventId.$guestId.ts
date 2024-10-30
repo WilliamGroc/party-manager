@@ -1,9 +1,9 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { handleAction } from "~/utils/handle";
+import { handle } from "~/utils/handle";
 import { http } from "~/utils/http";
 
 export function loader({ params, request }: LoaderFunctionArgs) {
-  return handleAction(async () => {
+  return handle(async () => {
     const eventId = params.eventId,
       guestId = params.guestId;
 

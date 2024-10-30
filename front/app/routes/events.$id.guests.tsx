@@ -9,8 +9,7 @@ import { loader as eventIdLoader } from "~/routes/events.$id";
 import { Guest, Present } from "~/models/guest";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { handleAction } from "~/utils/handle";
-import { ErrorCmp } from "~/components/error";
+import { handle } from "~/utils/handle";
 
 const actionPostValidator = z.object({
   username: z.string(),
@@ -22,7 +21,7 @@ const actionPutValidator = z.object({
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  return handleAction(async () => {
+  return handle(async () => {
     switch (request.method) {
       case 'POST': {
         const formData = await request.formData();
@@ -68,8 +67,6 @@ export default function EventById() {
   const submit = useSubmit();
   const shareFetcher = useFetcher<{ link: string }>();
   const formRef = useRef<HTMLFormElement>(null);
-
-  if (!loaderData || !("event" in loaderData)) return <ErrorCmp error={loaderData?.error || 'No event data'} />;
 
   useEffect(() => {
     if (shareFetcher.state === 'idle') {

@@ -1,11 +1,5 @@
-import { json } from "@remix-run/node";
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
-import { post } from "node_modules/axios/index.cjs";
-import { z } from "zod";
+import axios, { AxiosRequestConfig } from "axios";
 import { authenticator } from "~/services/auth.server";
-import { getSession } from "~/services/session.server";
-
-// replace with https://remix.run/resources/remix-auth
 
 export const client = axios.create({
   baseURL: 'http://localhost:8080',

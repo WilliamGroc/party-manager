@@ -20,19 +20,19 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  const response = await http.post<SessionUser>(request, '/user/register', {
+  await http.post<SessionUser>(request, '/user/register', {
     username: body.get('username'),
     email: body.get('email'),
     password: body.get('password')
   });
 
 
-  if (response.status !== 200) {
-    return json({ error: 'Invalid username or email' }, {
-      status: 400,
-      statusText: 'Invalid username or email'
-    });
-  }
+  // if (response.status !== 200) {
+  //   return json({ error: 'Invalid username or email' }, {
+  //     status: 400,
+  //     statusText: 'Invalid username or email'
+  //   });
+  // }
 
   return authenticator.authenticate('user-pass', request, {
     successRedirect: '/events'

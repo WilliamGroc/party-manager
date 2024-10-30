@@ -19,5 +19,17 @@ export default {
   Add: "Ajouter",
   Guests: "Invités",
   Create: "Créer",
-  "Create Event": "Créer un événement"
+  "Create Event": "Créer un événement",
+  Error: {
+    nf: "Page non trouvée",
+    ua: "Non autorisé",
+    fb: "Interdit",
+    br: "Requête incorrecte",
+    is: "Erreur interne du serveur",
+    it: "Autentification invalide",
+    il: "Lien invalide",
+    ic: "Identifiants invalides",
+    if: "Formulaire invalide",
+    gn: "Invité non trouvé"
+  }
 };

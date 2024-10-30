@@ -5,6 +5,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useRouteError,
   useSubmit,
 } from "@remix-run/react";
 
@@ -14,7 +15,6 @@ import styles from "./styles.css?url"
 import { ActionFunctionArgs, LinksFunction, LoaderFunctionArgs, MetaFunction, json, redirect } from "@remix-run/node";
 
 import rootStyle from './root.module.css';
-import { getSession } from "./services/session.server";
 import { Navbar } from "./components/navbar";
 import i18next, { localeCookie } from "./i18n/i18next.server";
 import { useChangeLanguage } from "remix-i18next/react";

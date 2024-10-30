@@ -9,8 +9,7 @@ import { useTranslation } from "react-i18next";
 import i18next from "~/i18n/i18next.server";
 import { enUS } from "date-fns/locale/en-US";
 import { authenticator } from "~/services/auth.server";
-import { AxiosError } from "axios";
-import { handleErrorLog, handleLoader } from "~/utils/handle";
+import { handle } from "~/utils/handle";
 
 type LoaderData = {
   isAuthenticated: boolean;
@@ -19,7 +18,7 @@ type LoaderData = {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  return handleLoader<LoaderData | TypedResponse<never>>(async () => {
+  return handle<LoaderData | TypedResponse<never>>(async () => {
     const { searchParams } = new URL(request.url);
     const locale = await (i18next.getLocale(request) || 'en') as 'en' | 'fr';
 

@@ -2,7 +2,7 @@
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Link, useActionData, useNavigate, useRouteLoaderData, useSubmit } from "@remix-run/react";
 import { dateServerParse } from "~/utils/date";
-import { handleAction, http } from "~/utils/http";
+import { http } from "~/utils/http";
 import { format } from 'date-fns'
 import { css } from "styled-system/css";
 import { fr } from "date-fns/locale";
@@ -10,9 +10,10 @@ import { loader as eventIdLoader } from "~/routes/events.$id";
 import { DeleteButton } from "~/components/deleteButton";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { handle } from "../utils/handle";
 
 export async function action({ params, request }: ActionFunctionArgs) {
-  return handleAction(async () => {
+  return handle(async () => {
     await http.delete(request, `/party/${params.id}`);
     return { success: true }
   });

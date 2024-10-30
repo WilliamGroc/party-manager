@@ -8,11 +8,10 @@ import { z } from "zod";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
 import { useTranslation } from "react-i18next";
-import { handleAction, handleLoader } from "~/utils/handle";
-import { ErrorCmp } from "~/components/error";
+import { handle } from "~/utils/handle";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
-  return handleLoader<{ event: Party }>(async () => {
+  return handle<{ event: Party }>(async () => {
     const { data } = await http.get<Party>(request, `/party/${params.id}`);
     return { event: data };
   });
@@ -26,7 +25,7 @@ const bodyValidator = z.object({
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  return handleAction(async () => {
+  return handle(async () => {
     const formData = await request.formData();
     const id = params.id;
 
@@ -59,8 +58,6 @@ export default function UpdateEvent() {
     formData.set('date', dateToServerFormat(form.date.value));
     submit(formData, { method: 'post' });
   }
-
-  if (!("event" in data)) return <ErrorCmp error={data.error} />;
 
   return <Form onSubmit={handleSubmit}>
     <label>

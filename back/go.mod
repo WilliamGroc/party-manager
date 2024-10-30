@@ -12,7 +12,6 @@ require (
 	github.com/magefile/mage v1.15.0
 	golang.org/x/crypto v0.28.0
 	gorm.io/driver/postgres v1.5.9
-	gorm.io/driver/sqlite v1.5.6
 	gorm.io/gorm v1.25.12
 )
 
@@ -34,7 +33,6 @@ require (
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
 	github.com/lestrrat-go/iter v1.0.2 // indirect
 	github.com/lestrrat-go/option v1.0.1 // indirect
-	github.com/mattn/go-sqlite3 v1.14.24 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/text v0.19.0 // indirect

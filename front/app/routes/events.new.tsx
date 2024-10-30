@@ -5,7 +5,7 @@ import { z } from "zod";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
 import { dateToServerFormat } from "~/utils/date";
-import { handleAction } from "~/utils/handle";
+import { handle } from "~/utils/handle";
 import { http } from "~/utils/http";
 
 const validator = z.object({
@@ -16,7 +16,7 @@ const validator = z.object({
 });
 
 export async function action({ request }: ActionFunctionArgs) {
-  return handleAction(async () => {
+  return handle(async () => {
     const formData = await request.formData();
 
     const data = {
@@ -28,7 +28,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const body = validator.parse(data);
 
-    const { data: responseData } = await http.post<{ id: number }>(request, '/party', body);
+    const responseData = await http.post<{ id: number }>(request, '/party', body);
 
     return redirect(`/events/${responseData.id}`);
   })
