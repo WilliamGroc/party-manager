@@ -32,7 +32,6 @@ export function GuestRow({ guest, onSetPresence, onDelete, onShare, isOwner, him
         flex: '1'
       }
     })}>
-      <div>{guest.userId}</div>
       <div>{guest.username}</div>
       <div>{guest.email}</div>
     </div>
@@ -90,21 +89,23 @@ export function GuestRow({ guest, onSetPresence, onDelete, onShare, isOwner, him
       }
       {isOwner && <>
         <div className={css({ ml: '1' })}>
-          <button
-            className={cx(
-              buttonStyle,
-              css({
-                bgColor: 'green!',
-                '&:hover': {
-                  bgColor: 'dgreen!'
-                },
-                color: 'white',
-                borderRadius: '0!'
-              }))}
-            title="share"
-            onClick={() => onShare(guest.id)}>
-            <i className="ri-share-line"></i>
-          </button>
+          {!guest.userId &&
+            <button
+              className={cx(
+                buttonStyle,
+                css({
+                  bgColor: 'green!',
+                  '&:hover': {
+                    bgColor: 'dgreen!'
+                  },
+                  color: 'white',
+                  borderRadius: '0!'
+                }))}
+              title="share"
+              onClick={() => onShare(guest.id)}>
+              <i className="ri-share-line"></i>
+            </button>
+          }
         </div>
         <div className={css({ ml: '1' })}>
           <DeleteButton onDelete={() => onDelete(guest.id)} noBorderRadius />

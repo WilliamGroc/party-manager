@@ -5,24 +5,26 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useRouteError,
   useSubmit,
 } from "@remix-run/react";
 
 import panda from "./panda.css?url"
 import styles from "./styles.css?url"
+import toasterStyle from 'react-toastify/dist/ReactToastify.css?url';
 
 import { ActionFunctionArgs, LinksFunction, LoaderFunctionArgs, MetaFunction, json, redirect } from "@remix-run/node";
-
+import { ToastContainer } from 'react-toastify';
 import rootStyle from './root.module.css';
 import { Navbar } from "./components/navbar";
 import i18next, { localeCookie } from "./i18n/i18next.server";
 import { useChangeLanguage } from "remix-i18next/react";
 import { authenticator } from "./services/auth.server";
+import { CloseButtonProps } from "node_modules/react-toastify/dist/components";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: panda },
   { rel: "stylesheet", href: styles },
+  { rel: "stylesheet", href: toasterStyle },
   {
     rel: "stylesheet",
     href: "https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css"
@@ -60,6 +62,10 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 }
 
+const CloseButton = ({ closeToast }: CloseButtonProps) => (
+  <i className="ri-close-line" onClick={closeToast}></i>
+);
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const data = useLoaderData<typeof loader>();
 
@@ -83,6 +89,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Navbar isAuthenticated={data?.isAuthenticated} setLanguage={handleLanguageChange} />
         <div className={rootStyle['body-container']}>
           {children}
+          <ToastContainer
+            position="top-right"
+            closeButton={CloseButton}
+          />
         </div>
         <ScrollRestoration />
         <Scripts />

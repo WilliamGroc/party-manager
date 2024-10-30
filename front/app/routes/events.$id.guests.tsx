@@ -10,6 +10,7 @@ import { Guest, Present } from "~/models/guest";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { handle } from "~/utils/handle";
+import { toast } from 'react-toastify';
 
 const actionPostValidator = z.object({
   username: z.string(),
@@ -28,11 +29,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
         const body = actionPostValidator.parse({
           username: formData.get('username') as string,
-          email: formData.get('email') as string
         });
-
-        if (body.email)
-          z.string().email().parse(body.email);
 
         await http.post(request, `/guest/party/${params.id}`, body);
 
@@ -69,9 +66,14 @@ export default function EventById() {
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (shareFetcher.state === 'idle') {
+    if (shareFetcher.state === 'idle' && shareFetcher.data?.link) {
       const url = `http://localhost:5173/events/${shareFetcher.data?.link}?invitation`;
-      console.log(url);
+      navigator.clipboard.writeText(url).then(() => {
+        toast(<div>
+          <span>{t('CopiedToClipboard')}</span>
+        </div>, {
+        })
+      });
     }
   }, [shareFetcher.state])
 
@@ -128,16 +130,11 @@ export default function EventById() {
           {t('Username')}
           <input type="text" name="username" />
         </label>
-        <label>
-          {t('Email')}
-          <input type="text" name="email" />
-        </label>
         <div className={css({ width: '140px', display: 'flex', alignItems: 'flex-end' })}>
           <button type="submit">{t('Add')}</button>
         </div>
       </Form>
     )}
-    {loaderData?.userId}
     <div>
       {loaderData?.event.guests.map((guest: Guest) => <GuestRow
         key={guest.id}

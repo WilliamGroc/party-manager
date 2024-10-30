@@ -22,14 +22,14 @@ func (ur *GuestRoutes) GetAllGuestFromParty(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	userid, _ := token.Get("id")
-	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", userid)) // Convert id to integer
+	user_id_s, _ := token.Get("id")
+	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", user_id_s)) // Convert id to integer
 
-	id := chi.URLParam(r, "partyId")
-	partyId, _ := strconv.Atoi(id)
+	party_id_s := chi.URLParam(r, "partyId")
+	party_id_i, _ := strconv.Atoi(party_id_s)
 
 	var party models.Party
-	ur.DB.Where(map[string]interface{}{"HostID": idInt, "ID": partyId}).First(&party)
+	ur.DB.Where(map[string]interface{}{"HostID": user_id_i, "ID": party_id_i}).First(&party)
 
 	if party.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -38,7 +38,7 @@ func (ur *GuestRoutes) GetAllGuestFromParty(w http.ResponseWriter, r *http.Reque
 	}
 
 	var guests []models.Guest
-	ur.DB.Where("party_id = ?", partyId).Find(&guests)
+	ur.DB.Where("party_id = ?", party_id_i).Find(&guests)
 
 	var response []GuestResponse = []GuestResponse{}
 	for _, guest := range guests {
@@ -57,18 +57,18 @@ func (ur *GuestRoutes) AddGuestToParty(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userid, _ := token.Get("id")
-	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", userid)) // Convert id to integer
+	user_id_s, _ := token.Get("id")
+	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", user_id_s)) // Convert id to integer
 
-	fmt.Println(idInt)
+	fmt.Println(user_id_i)
 
-	id := chi.URLParam(r, "partyId")
-	partyId, _ := strconv.Atoi(id)
+	party_id_s := chi.URLParam(r, "partyId")
+	party_id_i, _ := strconv.Atoi(party_id_s)
 
-	fmt.Println(partyId)
+	fmt.Println(party_id_i)
 
 	var party models.Party
-	ur.DB.Where(map[string]interface{}{"host_id": idInt, "id": partyId}).First(&party)
+	ur.DB.Where(map[string]interface{}{"host_id": user_id_i, "id": party_id_i}).First(&party)
 
 	if party.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -79,10 +79,10 @@ func (ur *GuestRoutes) AddGuestToParty(w http.ResponseWriter, r *http.Request) {
 	var body AddGuestRequest
 	api.DecodeBody(r, &body)
 
-	ur.DB.Create(&models.Guest{Username: body.Username, Email: body.Email, PartyID: partyId})
+	ur.DB.Create(&models.Guest{Username: body.Username, PartyID: party_id_i})
 
 	var guests []models.Guest
-	ur.DB.Where("party_id = ?", partyId).Find(&guests)
+	ur.DB.Where("party_id = ?", party_id_i).Find(&guests)
 
 	var response []GuestResponse
 	for _, guest := range guests {
@@ -154,14 +154,14 @@ func (ur *GuestRoutes) DeleteGuestFromParty(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	userid, _ := token.Get("id")
-	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", userid)) // Convert id to integer
+	user_id_s, _ := token.Get("id")
+	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", user_id_s)) // Convert id to integer
 
-	id := chi.URLParam(r, "partyId")
-	partyId, _ := strconv.Atoi(id)
+	party_id_s := chi.URLParam(r, "partyId")
+	party_id_i, _ := strconv.Atoi(party_id_s)
 
 	var party models.Party
-	ur.DB.Where(map[string]interface{}{"host_id": idInt, "id": partyId}).First(&party)
+	ur.DB.Where(map[string]interface{}{"host_id": user_id_i, "id": party_id_i}).First(&party)
 
 	if party.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -169,10 +169,10 @@ func (ur *GuestRoutes) DeleteGuestFromParty(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	id = chi.URLParam(r, "id")
-	guestId, _ := strconv.Atoi(id)
+	guest_id_s := chi.URLParam(r, "id")
+	guest_id_i, _ := strconv.Atoi(guest_id_s)
 
-	ur.DB.Delete(&models.Guest{}, guestId)
+	ur.DB.Delete(&models.Guest{}, guest_id_i)
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Guest deleted"))
@@ -206,12 +206,12 @@ func (ur *GuestRoutes) GetShareLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	baseLink := fmt.Sprintf("party/%d/%d", party_id_i, guest_id_i)
+	base_link := fmt.Sprintf("party/%d/%d", party_id_i, guest_id_i)
 
 	hasher := sha1.New()
-	hasher.Write([]byte(baseLink))
+	hasher.Write([]byte(base_link))
 
-	linkToken := hex.EncodeToString(hasher.Sum(nil))
+	link_token := hex.EncodeToString(hasher.Sum(nil))
 
 	var guest models.Guest
 	ur.DB.Where("id = ?", guest_id_i).First(&guest)
@@ -222,9 +222,9 @@ func (ur *GuestRoutes) GetShareLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ur.DB.Model(&guest).Updates(&models.Guest{LinkToken: linkToken})
+	ur.DB.Model(&guest).Updates(&models.Guest{LinkToken: link_token})
 
-	api.EncodeBody(w, map[string]string{"link": linkToken})
+	api.EncodeBody(w, map[string]string{"link": link_token})
 }
 
 func (ur *GuestRoutes) AddGuestWithLink(w http.ResponseWriter, r *http.Request) {
@@ -236,13 +236,12 @@ func (ur *GuestRoutes) AddGuestWithLink(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	userid, _ := token.Get("id")
-	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", userid)) // Convert id to integer
+	user_id_s, _ := token.Get("id")
+	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", user_id_s)) // Convert id to integer
 
 	var user models.User
 
-	fmt.Println("user id from token: %v", idInt)
-	ur.DB.Where("id = ?", idInt).First(&user)
+	ur.DB.Where("id = ?", user_id_i).First(&user)
 
 	if user.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -262,7 +261,7 @@ func (ur *GuestRoutes) AddGuestWithLink(w http.ResponseWriter, r *http.Request) 
 	}
 
 	guest.LinkToken = ""
-	guest.UserID = idInt
+	guest.UserID = user_id_i
 	guest.Email = user.Email
 	guest.Username = user.Username
 

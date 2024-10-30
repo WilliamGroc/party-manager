@@ -67,7 +67,6 @@ export default function EventById() {
       <div className={css({
         w: '100%'
       })}>
-        Is owner: {String(loaderData.isOwner)}
         <Outlet />
       </div>
     </div>

@@ -31,5 +31,6 @@ export default {
     ic: "Identifiants invalides",
     if: "Formulaire invalide",
     gn: "Invité non trouvé"
-  }
+  },
+  CopiedToClipboard: "Copié dans le presse-papiers",
 };
