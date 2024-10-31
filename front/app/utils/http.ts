@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { authenticator } from "~/services/auth.server";
+import { authenticator } from "~/services/auth/auth.server";
 
 export const client = axios.create({
   baseURL: 'http://localhost:8080',

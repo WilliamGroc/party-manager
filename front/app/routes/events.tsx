@@ -8,7 +8,7 @@ import { dateLocales, dateServerParse } from "~/utils/date";
 import { useTranslation } from "react-i18next";
 import i18next from "~/i18n/i18next.server";
 import { enUS } from "date-fns/locale/en-US";
-import { authenticator } from "~/services/auth.server";
+import { authenticator } from "~/services/auth/auth.server";
 import { handle } from "~/utils/handle";
 
 type LoaderData = {

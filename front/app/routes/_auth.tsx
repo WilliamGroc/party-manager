@@ -3,7 +3,7 @@ import { Outlet, useLocation, useParams } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
-import { authenticator } from "~/services/auth.server";
+import { authenticator } from "~/services/auth/auth.server";
 import { buildUrl } from "~/utils/url";
 
 

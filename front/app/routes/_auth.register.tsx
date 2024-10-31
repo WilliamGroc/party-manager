@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
-import { authenticateLocal, SessionUser } from "~/services/auth.server";
+import { authenticateLocal, SessionUser } from "~/services/auth/auth.server";
 import { http } from "~/utils/http";
 
 export const action: ActionFunction = async ({ request }) => {

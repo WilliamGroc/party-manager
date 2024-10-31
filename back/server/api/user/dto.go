@@ -25,8 +25,11 @@ type UserResponse struct {
 }
 
 type LoginRequest struct {
-	Password string `json:"password" validate:"required"`
 	Email    string `json:"email" validate:"required"`
+	Password string `json:"password"`
+	IsSSO    bool   `json:"isSSO"`
+	IdSSO    string `json:"idSSO"`
+	TypeSSO  string `json:"typeSSO"`
 }
 
 type LoginResponse struct {

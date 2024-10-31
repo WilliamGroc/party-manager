@@ -1,7 +1,9 @@
 import { Authenticator } from "remix-auth";
-import { sessionStorage } from "./session.server";
-import { FormStrategy } from "remix-auth-form";
+import { sessionStorage } from "../session.server";
 import { http } from "~/utils/http";
+import { LocalStrategy } from "./local.strategy";
+import { googleStrategy } from "./google.strategy";
+import { SocialsProvider } from "./providers";
 
 // Create an instance of the authenticator, pass a generic with what
 // strategies will return and will store in the session
@@ -14,33 +16,26 @@ export type SessionUser = {
 
 // Tell the Authenticator to use the form strategy
 authenticator.use(
-  new FormStrategy(async ({ form }) => {
-    console.log(form)
-    const email = form.get("email") as string;
-    const password = form.get("password") as string;
-
-    if (!email || !password) {
-      return null;
-    }
-
-    const user = await login(email, password);
-    console.log(user)
-    // the type of this user must match the type you pass to the Authenticator
-    // the strategy will automatically inherit the type if you instantiate
-    // directly inside the `use` method
-    return user;
-  }),
+  LocalStrategy,
   // each strategy has a name and can be changed to use another one
   // same strategy multiple times, especially useful for the OAuth2 strategy.
   "user-pass"
 );
 
-export async function login(email: string, password: string) {
-  const { data } = await http.post<SessionUser>(null, '/user/login', {
-    email,
-    password
-  });
+authenticator.use(googleStrategy)
 
+export type LoginPayload = {
+  email: string,
+} & {
+  password: string,
+} | {
+  isSSO: boolean,
+  idSSO: string,
+  typeSSO: SocialsProvider,
+}
+
+export async function login(payload: LoginPayload) {
+  const { data } = await http.post<SessionUser>(null, '/user/login', payload);
   return data;
 }
 

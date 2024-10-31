@@ -14,16 +14,33 @@ func (ur *UserRoutes) Login(w http.ResponseWriter, r *http.Request) {
 	api.DecodeBody(r, &body)
 
 	var user models.User
-
 	ur.DB.First(&user, "email = ?", body.Email)
 
-	if user.ID == 0 || bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)) != nil {
+	if body.IsSSO {
+		switch body.TypeSSO {
+		case "google":
+			if user.ID == 0 {
+				user = models.User{Email: body.Email, GoogleId: body.IdSSO}
+				ur.DB.Create(&user)
+			} else if user.GoogleId == "" {
+				user.GoogleId = body.IdSSO
+				ur.DB.Save(&user)
+			} else if user.GoogleId != body.IdSSO {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Unauthorized"))
+				return
+			}
+		}
+	} else if !body.IsSSO && (user.ID == 0 || bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)) != nil) {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Unauthorized"))
 		return
 	}
 
 	_, tokenString, _ := ur.Auth.TokenAuth.Encode(map[string]interface{}{"id": user.ID, "email": user.Email})
+
+	user.Token = tokenString
+	ur.DB.Save(&user)
 
 	api.EncodeBody(w, LoginResponse{Token: tokenString, Email: user.Email})
 }

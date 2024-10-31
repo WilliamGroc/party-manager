@@ -18,7 +18,7 @@ import rootStyle from './root.module.css';
 import { Navbar } from "./components/navbar";
 import i18next, { localeCookie } from "./i18n/i18next.server";
 import { useChangeLanguage } from "remix-i18next/react";
-import { authenticator } from "./services/auth.server";
+import { authenticator } from "./services/auth/auth.server";
 import { CloseButtonProps } from "node_modules/react-toastify/dist/components";
 
 export const links: LinksFunction = () => [

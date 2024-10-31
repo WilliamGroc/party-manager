@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
 import { Party } from "~/models/party";
-import { authenticator } from "~/services/auth.server";
+import { authenticator } from "~/services/auth/auth.server";
 import { decodeToken } from "~/services/session.server";
 import { handle } from "~/utils/handle";
 import { http } from "~/utils/http";
@@ -18,8 +18,8 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
     if (searchParams.has('invitation')) {
       const { data } = await http.get<Party>(request, `/party/${params.id}/shared`);
-      
-      if (user){
+
+      if (user) {
         await http.put(request, `/guest/link/${params.id}`)
         return redirect(`/events/${data.id}`);
       }
