@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
-import { authenticator, SessionUser } from "~/services/auth.server";
+import { authenticateLocal, SessionUser } from "~/services/auth.server";
 import { http } from "~/utils/http";
 
 export const action: ActionFunction = async ({ request }) => {
-  const body = await request.formData();
+  const body = await request.clone().formData();
 
   const password = body.get('password');
   const confirmPassword = body.get('confirmPassword');
@@ -20,23 +20,21 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  await http.post<SessionUser>(request, '/user/register', {
+  const response = await http.post<SessionUser>(request, '/user/register', {
     username: body.get('username'),
     email: body.get('email'),
     password: body.get('password')
   });
 
 
-  // if (response.status !== 200) {
-  //   return json({ error: 'Invalid username or email' }, {
-  //     status: 400,
-  //     statusText: 'Invalid username or email'
-  //   });
-  // }
+  if (response.status !== 200) {
+    return json({ error: 'Invalid username or email' }, {
+      status: 400,
+      statusText: 'Invalid username or email'
+    });
+  }
 
-  return authenticator.authenticate('user-pass', request, {
-    successRedirect: '/events'
-  });
+  return await authenticateLocal(request);
 }
 
 export default function AuthRegister() {

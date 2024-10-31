@@ -5,14 +5,11 @@ import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
-import { authenticator } from "~/services/auth.server";
+import { authenticateLocal } from "~/services/auth.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    return authenticator.authenticate("user-pass", request, {
-      successRedirect: "/events",
-      failureRedirect: "/login",
-    });
+    return authenticateLocal(request);
   } catch (error) {
     if (error instanceof AxiosError) {
       return json({ error: 'Bad credentials' }, {

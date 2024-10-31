@@ -1,9 +1,10 @@
 import { LoaderFunction } from "@remix-run/node";
-import { Outlet, useLocation } from "@remix-run/react";
+import { Outlet, useLocation, useParams } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
 import { authenticator } from "~/services/auth.server";
+import { buildUrl } from "~/utils/url";
 
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -16,10 +17,21 @@ export const loader: LoaderFunction = async ({ request }) => {
 export default function Auth() {
   const { t } = useTranslation();
   const location = useLocation();
-  const currentTab = location.pathname.split("/").pop() || 'login';
+  const params = useParams();
+
+  const setInvitationLink = (path: string): string => {
+    const searchParams = new URLSearchParams(location.search);
+    const url = buildUrl(path);
+
+    if (searchParams.has('invitation'))
+      url.searchParams.set('invitation', searchParams.get('invitation') as string);
+    return url.toString();
+  }
+
+  const currentTab = location.pathname.split("/").pop()?.split('?').shift() || 'login';
   const TABS = [
-    { name: t('Login'), path: 'login' },
-    { name: t('Register'), path: 'register' }
+    { name: t('Login'), path: setInvitationLink("login"), index: 'login' },
+    { name: t('Register'), path: setInvitationLink("register"), index: 'register' },
   ];
 
   return (

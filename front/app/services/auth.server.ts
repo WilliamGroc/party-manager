@@ -15,6 +15,7 @@ export type SessionUser = {
 // Tell the Authenticator to use the form strategy
 authenticator.use(
   new FormStrategy(async ({ form }) => {
+    console.log(form)
     const email = form.get("email") as string;
     const password = form.get("password") as string;
 
@@ -41,4 +42,21 @@ export async function login(email: string, password: string) {
   });
 
   return data;
+}
+
+export async function authenticateLocal(request: Request) {
+  const searchParams = new URLSearchParams(request.url.split('?')[1]);
+
+  let successRedirect = "/events", failureRedirect = "/login";
+
+  if (searchParams.has('invitation')) {
+    const invitation = searchParams.get('invitation');
+    successRedirect = `/events/${invitation}?invitation`;
+    failureRedirect = `/login?invitation=${invitation}`;
+  }
+
+  return authenticator.authenticate("user-pass", request, {
+    successRedirect,
+    failureRedirect,
+  });
 }

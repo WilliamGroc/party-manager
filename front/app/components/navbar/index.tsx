@@ -1,10 +1,11 @@
-import { Link } from "@remix-run/react";
+import { Link, useLocation, useParams } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 // eslint-disable-next-line import/no-unresolved
 import imgFr from "/img/france.png?url"
 // eslint-disable-next-line import/no-unresolved
 import imgUs from "/img/etats-unis.png?url"
+import { buildUrl } from "~/utils/url";
 
 type Props = {
   isAuthenticated: boolean;
@@ -13,6 +14,16 @@ type Props = {
 
 export function Navbar({ isAuthenticated, setLanguage }: Props) {
   const { t } = useTranslation();
+  const location = useLocation();
+  const params = useParams<{ id: string }>();
+
+  const setInvitationLink = (path: string): string => {
+    const searchParams = new URLSearchParams(location.search);
+    const url = buildUrl(path);
+    if (searchParams.has('invitation') && params.id)
+      url.searchParams.set('invitation', params.id);
+    return url.toString();
+  }
 
   return <nav className={css({
     backgroundColor: 'primary',
@@ -49,7 +60,7 @@ export function Navbar({ isAuthenticated, setLanguage }: Props) {
       })}>
         {!isAuthenticated ? (
           <li>
-            <Link to="/login">
+            <Link to={setInvitationLink("/login")} >
               {t('Authentication')}
             </Link>
           </li>) : (
