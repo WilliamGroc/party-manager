@@ -8,9 +8,10 @@ export const googleStrategy = new GoogleStrategy(
     clientSecret: process.env.VITE_GOOGLE_CLIENT_SECRET || '',
     callbackURL: 'http://localhost:5173/auth/google/callback',
   },
-  async ({ profile }: { profile: GoogleProfile }) => {
+  async ({ profile }) => {
     return await login({
       email: profile.emails![0].value,
+      username: profile.displayName,
       isSSO: true,
       idSSO: profile.id,
       typeSSO: SocialsProvider.GOOGLE

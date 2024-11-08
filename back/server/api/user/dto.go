@@ -30,6 +30,7 @@ type LoginRequest struct {
 	IsSSO    bool   `json:"isSSO"`
 	IdSSO    string `json:"idSSO"`
 	TypeSSO  string `json:"typeSSO"`
+	Username string `json:"username"`
 }
 
 type LoginResponse struct {

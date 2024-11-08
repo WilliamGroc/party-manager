@@ -32,6 +32,7 @@ export type LoginPayload = {
   isSSO: boolean,
   idSSO: string,
   typeSSO: SocialsProvider,
+  username: string,
 }
 
 export async function login(payload: LoginPayload) {

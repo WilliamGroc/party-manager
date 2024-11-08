@@ -32,10 +32,11 @@ export function GuestRow({ guest, onSetPresence, onDelete, onShare, isOwner, him
         flex: '1'
       }
     })}>
+      <div>{guest.userId}</div>
       <div>{guest.username}</div>
       <div>{guest.email}</div>
     </div>
-    <div className={css({ display: 'flex' })}>
+    <div className={css({ display: 'flex', minW: 208 })}>
       {(himself || isOwner || guest.present === Present.OK) &&
         <div>
           <button

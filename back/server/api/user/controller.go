@@ -20,7 +20,7 @@ func (ur *UserRoutes) Login(w http.ResponseWriter, r *http.Request) {
 		switch body.TypeSSO {
 		case "google":
 			if user.ID == 0 {
-				user = models.User{Email: body.Email, GoogleId: body.IdSSO}
+				user = models.User{Email: body.Email, GoogleId: body.IdSSO, Username: body.Username}
 				ur.DB.Create(&user)
 			} else if user.GoogleId == "" {
 				user.GoogleId = body.IdSSO
