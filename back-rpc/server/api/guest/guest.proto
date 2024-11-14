@@ -1,0 +1,51 @@
+syntax = "proto3";
+package guest;
+option go_package = "partymanager/server/api/guest;guest";
+
+import "google/protobuf/empty.proto";
+
+service Guest {
+  rpc GetAllGuestFromParty (GetAllGuestFromRequest) returns (GuestsResponse) {}
+  rpc AddGuestToParty (AddGuestRequest) returns (GuestsResponse) {}
+  rpc UpdateGuest (UpdateGuestRequest) returns (GuestResponse) {}
+  rpc DeleteGuestFromParty (GuestRequest) returns (google.protobuf.Empty) {}
+  rpc GetShareLink (GuestRequest) returns (LinkQuery) {}
+  rpc AddGuestWithLink (LinkQuery) returns (GuestResponse) {}
+}
+
+message GuestsResponse {
+  repeated GuestResponse guests = 1;
+}
+
+message GuestResponse {
+  uint32 id = 1;
+  string username = 2;
+  string email = 3;
+  string present = 4;
+  uint32 userId = 5;
+}
+
+message GetAllGuestFromRequest {
+  uint32 partyId = 1;
+}
+
+message GuestRequest {
+  uint32 partyId = 1;
+  uint32 guestId = 2;
+}
+
+message AddGuestRequest {
+  uint32 partyId = 1;
+  string username = 2;
+  string email = 3;
+}
+
+message UpdateGuestRequest {
+  uint32 partyId = 1;
+  uint32 guestId = 2;
+  string present = 3;
+}
+
+message LinkQuery {
+  string link = 1;
+}

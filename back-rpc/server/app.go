@@ -1,28 +1,25 @@
 package server
 
 import (
+	"fmt"
 	"log"
-	"net/http"
+	"net"
 	"os"
 	"partymanager/server/api/guest"
 	"partymanager/server/api/party"
 	"partymanager/server/api/user"
-	"partymanager/server/auth"
 	"partymanager/server/models"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 type App struct {
-	DB     *gorm.DB
-	Router *chi.Mux
-	Auth   *auth.Auth
+	DB *gorm.DB
 }
 
 type AppInterface interface {
@@ -56,21 +53,23 @@ func (a *App) Run() {
 	// Migrate the schema
 	db.AutoMigrate(&models.User{}, &models.Party{}, &models.Guest{})
 
-	// Router
-	a.Router = chi.NewRouter()
+	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", 1234))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	var opts []grpc.ServerOption
+	opts = append(opts, Interceptor())
 
-	a.Router.Use(middleware.Logger)
-	a.Router.Use(middleware.Recoverer)
-	a.Router.Use(render.SetContentType(render.ContentTypeJSON))
+	grpcServer := grpc.NewServer(opts...)
 
-	a.Auth = auth.NewAuth()
+	guest.RegisterGuestServer(grpcServer, guest.NewGuestService(a.DB))
+	party.RegisterPartyServer(grpcServer, party.NewPartyService(a.DB))
+	user.RegisterUserServer(grpcServer, user.NewUserService(a.DB))
 
-	a.Router.Mount("/user", user.NewUserRoutes(a.DB, a.Auth).Router)
-	a.Router.Mount("/party", party.NewPartyRoutes(a.DB, a.Auth).Router)
-	a.Router.Mount("/guest", guest.NewGuestRoutes(a.DB, a.Auth).Router)
+	reflection.Register(grpcServer)
 
-	log.Println("Server running on port 8080")
-	err = http.ListenAndServe(":8080", a.Router)
+	fmt.Println("RPC Server running on port 1234")
+	grpcServer.Serve(lis)
 
 	if err != nil {
 		log.Fatal(err)
