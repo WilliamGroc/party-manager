@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -71,7 +70,6 @@ func ValidateToken(tokenString string) bool {
 		return []byte(secret), nil
 	})
 
-	fmt.Println(token.Valid)
 	if err != nil {
 		return false
 	}

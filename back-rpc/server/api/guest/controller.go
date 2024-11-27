@@ -94,8 +94,6 @@ func (ur *GuestService) UpdateGuest(ctx context.Context, in *UpdateGuestRequest)
 
 	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
 
-	fmt.Printf("token: %v \n", token)
-	fmt.Printf("user id: %v, party id: %v \n", user_id_i, in.PartyId)
 	var party models.Party
 	ur.DB.Model(&models.Party{}).Joins("LEFT JOIN guests on guests.party_id = parties.id").Where("(host_id = ? OR guests.user_id = ? ) AND parties.id = ?", user_id_i, user_id_i, in.PartyId).Group("parties.id").First(&party)
 
@@ -152,7 +150,6 @@ func (ur *GuestService) GetShareLink(ctx context.Context, in *GuestRequest) (*Li
 
 	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
 
-	fmt.Printf("user id: %v, party id: %v, guest id: %v \n", user_id_i, in.PartyId, in.GuestId)
 	var party models.Party
 	ur.DB.Where(map[string]interface{}{"host_id": user_id_i, "id": in.PartyId}).First(&party)
 

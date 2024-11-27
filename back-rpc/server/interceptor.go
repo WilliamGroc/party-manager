@@ -6,6 +6,7 @@ import (
 	"partymanager/server/auth"
 	"slices"
 	"strings"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -14,9 +15,12 @@ import (
 )
 
 func requestLogger(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	fmt.Printf("Request - Method: %s, Request: %v\n", info.FullMethod, req)
+	fmt.Printf("[%s] %s\n", time.Now().Format("2006-01-02 15:04:05"), info.FullMethod)
 	resp, err := handler(ctx, req)
-	fmt.Printf("Response - Method: %s, Response: %v\n", info.FullMethod, resp)
+
+	if err != nil {
+		fmt.Printf("[%s] Error - Method: %s, Response: %v\n", time.Now().Format("2006-01-02 15:04:05"), info.FullMethod, err)
+	}
 	return resp, err
 }
 

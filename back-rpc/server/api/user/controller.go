@@ -3,9 +3,11 @@ package user
 import (
 	context "context"
 	"errors"
+	"fmt"
 	"partymanager/server/auth"
 	"partymanager/server/models"
 
+	"cloud.google.com/go/auth/credentials/idtoken"
 	empty "github.com/golang/protobuf/ptypes/empty"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -32,6 +34,14 @@ func (ur *UserService) Login(ctx context.Context, in *LoginRequest) (*LoginRespo
 	if in.IsSSO {
 		switch in.TypeSSO {
 		case "google":
+			payload, err := idtoken.Validate(ctx, in.IdSSO, "")
+
+			if err != nil {
+				return nil, errors.New("unauthorized")
+			}
+
+			fmt.Println("Google token validated with claims", payload.Claims)
+
 			if user.ID == 0 {
 				user = models.User{Email: in.Email, GoogleId: in.IdSSO, Username: in.Username}
 				ur.DB.Create(&user)

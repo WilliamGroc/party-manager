@@ -20,7 +20,7 @@ message GetRequest {
 }
 
 message GetSharedRequest {
-  uint32 link = 1;
+  string link = 1;
 }
 
 message PartiesResponse {
