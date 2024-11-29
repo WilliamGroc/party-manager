@@ -2,7 +2,8 @@ import { createCookieSessionStorage } from "@remix-run/node"; // or cloudflare/d
 import jwt from "jsonwebtoken";
 
 type Token = {
-  id: number;
+  userId: number;
+  email: number;
 }
 
 type SessionData = {
@@ -30,8 +31,8 @@ export const sessionStorage = createCookieSessionStorage<{ user: SessionData }, 
 
 export const { getSession, commitSession, destroySession } = sessionStorage;
 
-export async function decodeToken(token: string): Promise<Token> {
-  return jwt.decode(token!) as Token;
+export function decodeToken(token: string): Token {
+  return jwt.decode(token) as Token;;
 }
 
 export async function getToken(request: Request): Promise<string | undefined> {

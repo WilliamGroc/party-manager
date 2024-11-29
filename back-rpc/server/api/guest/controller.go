@@ -88,14 +88,19 @@ func (ur *GuestService) AddGuestToParty(ctx context.Context, in *AddGuestRequest
 func (ur *GuestService) UpdateGuest(ctx context.Context, in *UpdateGuestRequest) (*GuestResponse, error) {
 	token, err := auth.GetToken(ctx)
 
-	if err != nil {
-		return nil, err
+	var user_id_i int = 0
+
+	if err == nil {
+		user_id_i, _ = strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
 	}
 
-	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
-
 	var party models.Party
-	ur.DB.Model(&models.Party{}).Joins("LEFT JOIN guests on guests.party_id = parties.id").Where("(host_id = ? OR guests.user_id = ? ) AND parties.id = ?", user_id_i, user_id_i, in.PartyId).Group("parties.id").First(&party)
+	var query = ur.DB.Model(&models.Party{}).Joins("LEFT JOIN guests on guests.party_id = parties.id")
+
+	if user_id_i == 0 {
+		query.Where("(host_id = ? OR guests.user_id = ? ) AND parties.id = ?", user_id_i, user_id_i, in.PartyId).Group("parties.id").First(&party)
+	} else {
+	}
 
 	if party.ID == 0 {
 		return nil, errors.New("party not found")

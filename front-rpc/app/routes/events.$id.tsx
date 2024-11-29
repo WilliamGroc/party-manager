@@ -15,7 +15,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   return handle<{ event: PartyResponse, isOwner: boolean, userId: number } | TypedResponse<never>>(async () => {
     const { searchParams } = new URL(request.url);
 
-    const user = await authenticator.isAuthenticated(request);
+    const session = await authenticator.isAuthenticated(request);
 
     const token = await getToken(request);
 
@@ -25,7 +25,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     if (searchParams.has('invitation')) {
       const event = await partyService.GetSharedParty({ link: params.id });
 
-      if (user) {
+      if (session) {
         await guestService.AddGuestWithLink({ link: params.id });
         return redirect(`/events/${event.id}`);
       }
@@ -37,7 +37,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       };
     }
 
-    const { id: userId } = await decodeToken(user!.token!);
+    const { userId } = decodeToken(token!);
 
     const event = await partyService.GetParty({ id: Number(params.id) });
 

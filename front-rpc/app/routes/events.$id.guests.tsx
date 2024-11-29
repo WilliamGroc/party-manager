@@ -51,7 +51,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           present: putData.get('present') as Present,
         });
 
-        await guestService.UpdateGuest({ guestId: Number(putData.get('guestId')), partyId: Number(params.id), ...putBody });
+        await guestService.UpdateGuest({ guestId: Number(putData.get('guestId')), partyId: Number(params.id), link: params.id, ...putBody });
 
         return true;
       }
