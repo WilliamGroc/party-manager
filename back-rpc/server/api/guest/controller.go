@@ -98,8 +98,9 @@ func (ur *GuestService) UpdateGuest(ctx context.Context, in *UpdateGuestRequest)
 	var query = ur.DB.Model(&models.Party{}).Joins("LEFT JOIN guests on guests.party_id = parties.id")
 
 	if user_id_i == 0 {
-		query.Where("(host_id = ? OR guests.user_id = ? ) AND parties.id = ?", user_id_i, user_id_i, in.PartyId).Group("parties.id").First(&party)
+		query.Where("guests.link_token = ?", in.Link).Group("parties.id").First(&party)
 	} else {
+		query.Where("(host_id = ? OR guests.user_id = ? ) AND parties.id = ?", user_id_i, user_id_i, in.PartyId).Group("parties.id").First(&party)
 	}
 
 	if party.ID == 0 {
