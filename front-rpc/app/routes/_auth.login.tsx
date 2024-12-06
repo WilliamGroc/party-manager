@@ -1,5 +1,4 @@
-import { ActionFunctionArgs, json } from "@remix-run/node";
-import { Form, useActionData, useSubmit } from "@remix-run/react";
+import { ActionFunctionArgs, Form, useActionData, useSubmit } from "react-router";
 import { AxiosError } from "axios";
 import { MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,14 +13,16 @@ export async function action({ request }: ActionFunctionArgs) {
     return authenticateLocal(request);
   } catch (error) {
     if (error instanceof AxiosError) {
-      return json({ error: 'Bad credentials' }, {
+      return {
         status: error.response?.status,
-      });
+        error: error.response?.data
+      }
     }
 
-    return json({ error: 'An error occurred' }, {
+    return {
       status: 500,
-    });
+      error: 'An error occurred'
+    }
   }
 }
 
@@ -76,7 +77,7 @@ export default function AuthLogin() {
         <button type="submit">{t('Login')}</button>
       </Form>
       <div className={css({ display: 'flex' })}>
-        <SocialButton provider={SocialsProvider.GOOGLE} label="Login with Google" icon="ri-google-fill" />
+        {/* <SocialButton provider={SocialsProvider.GOOGLE} label="Login with Google" icon="ri-google-fill" /> */}
       </div>
     </div>
   );

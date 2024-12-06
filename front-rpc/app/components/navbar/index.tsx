@@ -1,4 +1,3 @@
-import { Link, useLocation, useParams } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 // eslint-disable-next-line import/no-unresolved
@@ -6,6 +5,7 @@ import imgFr from "/img/france.png?url"
 // eslint-disable-next-line import/no-unresolved
 import imgUs from "/img/etats-unis.png?url"
 import { buildUrl } from "~/utils/url";
+import { useLocation, useParams, Link } from "react-router";
 
 type Props = {
   isAuthenticated: boolean;

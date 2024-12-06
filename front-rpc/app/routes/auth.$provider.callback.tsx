@@ -1,10 +1,9 @@
-import { ActionFunctionArgs } from "@remix-run/node"
-import { useSubmit } from "@remix-run/react"
+import { ActionFunctionArgs, useSubmit } from "react-router"
 import { useEffect } from "react"
 import { authenticator } from "~/services/auth/auth.server"
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const data = await request.formData();
+  const data = await request.clone().formData();
   const invitation = data.get('invitation');
 
   let successRedirect = '/events';

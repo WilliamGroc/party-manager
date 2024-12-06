@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "react-router";
 import { GuestService } from "~/services/guest/index.server";
 import { getToken } from "~/services/session.server";
 import { handle } from "~/utils/handle";

@@ -1,10 +1,10 @@
-import { LoaderFunctionArgs, redirect, TypedResponse } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect } from "react-router";
 import { PartyService } from "~/services/party/index.server";
 import { getToken } from "~/services/session.server";
 import { handle } from "~/utils/handle";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
-  return handle<TypedResponse<never>>(async () => {
+  return handle<Response>(async () => {
     const token = await getToken(request);
 
     const partyService = new PartyService(token);

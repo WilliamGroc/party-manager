@@ -1,5 +1,6 @@
 import { FormStrategy } from "remix-auth-form";
 import { UserService } from "../user/index.server";
+import { SessionUser } from "../session.server";
 
 export const LocalStrategy = new FormStrategy(async ({ form }) => {
   const email = form.get("email") as string;
@@ -10,8 +11,10 @@ export const LocalStrategy = new FormStrategy(async ({ form }) => {
   }
 
   const userService = new UserService();
-  return userService.Login({
+  const user = await userService.Login({
     email,
     password,
-  });
+  })
+
+  return user as SessionUser;
 })

@@ -1,4 +1,4 @@
-import { createCookieSessionStorage } from "@remix-run/node"; // or cloudflare/deno
+import { createCookieSessionStorage } from "react-router";
 import jwt from "jsonwebtoken";
 
 type Token = {
@@ -6,7 +6,7 @@ type Token = {
   email: number;
 }
 
-type SessionData = {
+export type SessionUser = {
   email: string;
   token: string;
 };
@@ -15,7 +15,7 @@ type SessionFlashData = {
   error: string;
 };
 
-export const sessionStorage = createCookieSessionStorage<{ user: SessionData }, SessionFlashData>(
+export const sessionStorage = createCookieSessionStorage<{ user: SessionUser }, SessionFlashData>(
   {
     // a Cookie from `createCookie` or the CookieOptions to create one
     cookie: {
@@ -38,4 +38,14 @@ export function decodeToken(token: string): Token {
 export async function getToken(request: Request): Promise<string | undefined> {
   const session = await getSession(request.headers.get("Cookie"));
   return session?.get("user")?.token;
+}
+
+export async function isAuthenticated(request: Request): Promise<boolean> {
+  const session = await getSession(request.headers.get("Cookie"));
+  return !!session?.get("user");
+}
+
+export async function getUser(request: Request): Promise<SessionUser | undefined> {
+  const session = await getSession(request.headers.get("Cookie"));
+  return session?.get("user");
 }

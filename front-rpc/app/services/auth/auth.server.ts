@@ -1,17 +1,14 @@
 import { Authenticator } from "remix-auth";
 import { sessionStorage } from "../session.server";
 import { LocalStrategy } from "./local.strategy";
-import { googleStrategy } from "./google.strategy";
+import { redirect } from "react-router";
+import { SessionUser } from "../session.server";
 import { SocialsProvider } from "./providers";
 
 // Create an instance of the authenticator, pass a generic with what
 // strategies will return and will store in the session
-export let authenticator = new Authenticator<SessionUser | null>(sessionStorage);
+export let authenticator = new Authenticator<SessionUser | null>();
 
-export type SessionUser = {
-  email?: string;
-  token?: string;
-}
 
 // Tell the Authenticator to use the form strategy
 authenticator.use(
@@ -20,8 +17,6 @@ authenticator.use(
   // same strategy multiple times, especially useful for the OAuth2 strategy.
   "user-pass"
 );
-
-authenticator.use(googleStrategy)
 
 export type LoginPayload = {
   email: string,
@@ -45,8 +40,15 @@ export async function authenticateLocal(request: Request) {
     failureRedirect = `/login?invitation=${invitation}`;
   }
 
-  return authenticator.authenticate("user-pass", request, {
-    successRedirect,
-    failureRedirect,
-  });
+  const user = await authenticator.authenticate("user-pass", request);
+
+  if (user) {
+    const session = await sessionStorage.getSession(request.headers.get("cookie"));
+    session.set("user", user);
+    throw redirect(successRedirect, {
+      headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
+    });
+  }
+
+  throw redirect(failureRedirect);
 }

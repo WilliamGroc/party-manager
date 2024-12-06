@@ -1,25 +1,16 @@
-import {
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-  useLoaderData,
-  useSubmit,
-} from "@remix-run/react";
 
 import panda from "./panda.css?url"
 import styles from "./styles.css?url"
 import toasterStyle from 'react-toastify/dist/ReactToastify.css?url';
 
-import { ActionFunctionArgs, LinksFunction, LoaderFunctionArgs, MetaFunction, json, redirect } from "@remix-run/node";
+import { ActionFunctionArgs, Links, LinksFunction, LoaderFunctionArgs, Meta, MetaFunction, Outlet, redirect, Scripts, ScrollRestoration, useLoaderData, useSubmit } from "react-router";
 import { ToastContainer } from 'react-toastify';
 import rootStyle from './root.module.css';
 import { Navbar } from "./components/navbar";
 import i18next, { localeCookie } from "./i18n/i18next.server";
 import { useChangeLanguage } from "remix-i18next/react";
-import { authenticator } from "./services/auth/auth.server";
 import { CloseButtonProps } from "node_modules/react-toastify/dist/components";
+import { getUser } from "./services/session.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: panda },
@@ -42,9 +33,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const locale = await i18next.getLocale(request) || 'en';
 
   try {
-    const user = await authenticator.isAuthenticated(request);
-
-    return json({ isAuthenticated: !!user, locale }, { headers: { "Set-Cookie": await localeCookie.serialize(locale) } });
+    const user = await getUser(request);
+    return { isAuthenticated: !!user, locale };
   } catch (e) {
     console.error('root', e);
     return { isAuthenticated: false, locale };

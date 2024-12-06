@@ -1,23 +1,21 @@
-import { LoaderFunction } from "@remix-run/node";
-import { Outlet, useLocation, useParams } from "@remix-run/react";
+import { LoaderFunction, Outlet, redirect, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
-import { authenticator } from "~/services/auth/auth.server";
 import { buildUrl } from "~/utils/url";
+import { isAuthenticated } from "~/services/session.server";
 
 
 export const loader: LoaderFunction = async ({ request }) => {
   // If the user is already authenticated redirect to /dashboard directly
-  return authenticator.isAuthenticated(request, {
-    successRedirect: "/events",
-  });
+  if (await isAuthenticated(request)) {
+    throw redirect('/events');
+  }
 }
 
 export default function Auth() {
   const { t } = useTranslation();
   const location = useLocation();
-  const params = useParams();
 
   const setInvitationLink = (path: string): string => {
     const searchParams = new URLSearchParams(location.search);

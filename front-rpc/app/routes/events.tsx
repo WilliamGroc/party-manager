@@ -1,16 +1,14 @@
-import { LoaderFunctionArgs, TypedResponse, redirect } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useParams } from "@remix-run/react";
+import { Link, LoaderFunctionArgs, Outlet, redirect, useLoaderData, useParams } from "react-router";
 import { css } from "styled-system/css";
 import { compareAsc, formatDistanceToNow } from 'date-fns'
 import { dateLocales, dateServerParse } from "~/utils/date";
 import { useTranslation } from "react-i18next";
 import i18next from "~/i18n/i18next.server";
 import { enUS } from "date-fns/locale/en-US";
-import { authenticator } from "~/services/auth/auth.server";
 import { handle } from "~/utils/handle";
 import { PartyService } from "~/services/party/index.server";
 import { PartyResponse } from "proto/party/PartyResponse";
-import { getToken } from "~/services/session.server";
+import { getToken, getUser, isAuthenticated } from "~/services/session.server";
 
 type LoaderData = {
   isAuthenticated: boolean;
@@ -19,12 +17,11 @@ type LoaderData = {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  return handle<LoaderData | TypedResponse<never>>(async () => {
+  return handle<LoaderData | Response>(async () => {
     const { searchParams } = new URL(request.url);
     const locale = await (i18next.getLocale(request) || 'en') as 'en' | 'fr';
 
-    const user = await authenticator.isAuthenticated(request);
-    if (user) {
+    if (await isAuthenticated(request)) {
       const token = await getToken(request);
       const partyService = new PartyService(token);
       const { parties } = await partyService.GetAllParty();
@@ -87,7 +84,9 @@ export default function Events() {
                   <div>
                     {event.name}
                   </div>
-                  <div>{formatDistanceToNow(dateServerParse(event.date!), { addSuffix: true, locale: dateLocales[locale] || enUS })}</div>
+                  <div>
+                    {formatDistanceToNow(dateServerParse(event.date!), { addSuffix: true, locale: dateLocales[locale] || enUS })}
+                  </div>
                 </div>
               </Link>
             ))}

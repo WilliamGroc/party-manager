@@ -1,10 +1,9 @@
-import { ActionFunction, json } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { ActionFunction, Form, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
-import { authenticateLocal, SessionUser } from "~/services/auth/auth.server";
+import { authenticateLocal } from "~/services/auth/auth.server";
 import { getToken } from "~/services/session.server";
 import { UserService } from "~/services/user/index.server";
 
@@ -32,10 +31,11 @@ export const action: ActionFunction = async ({ request }) => {
 
     return await authenticateLocal(request);
   } catch (err) {
-    return json({ error: 'Invalid username or email' }, {
+    return {
       status: 400,
-      statusText: 'Invalid username or email'
-    });
+      statusText: 'Bad Request',
+      error: err
+    };
   }
 }
 

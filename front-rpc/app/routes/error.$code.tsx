@@ -1,5 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { LoaderFunctionArgs, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 
 export const loader = ({ params }: LoaderFunctionArgs) => {

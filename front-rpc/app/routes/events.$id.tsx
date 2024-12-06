@@ -1,21 +1,18 @@
-import { LoaderFunctionArgs, redirect, TypedResponse } from "@remix-run/node";
-import { Outlet, useLoaderData, useLocation } from "@remix-run/react";
+import { LoaderFunctionArgs, Outlet, redirect, useLoaderData, useLocation } from "react-router";
 import { PartyResponse } from "proto/party/PartyResponse";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
-import { authenticator } from "~/services/auth/auth.server";
 import { GuestService } from "~/services/guest/index.server";
 import { PartyService } from "~/services/party/index.server";
-import { decodeToken, getToken } from "~/services/session.server";
+import { decodeToken, getToken, isAuthenticated } from "~/services/session.server";
 import { handle } from "~/utils/handle";
 
+export type LoaderType = { event: PartyResponse, isOwner: boolean, userId: number };
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
-  return handle<{ event: PartyResponse, isOwner: boolean, userId: number } | TypedResponse<never>>(async () => {
+  return handle<Response | { event: PartyResponse, isOwner: boolean, userId: number }>(async () => {
     const { searchParams } = new URL(request.url);
-
-    const session = await authenticator.isAuthenticated(request);
 
     const token = await getToken(request);
 
@@ -25,7 +22,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     if (searchParams.has('invitation')) {
       const event = await partyService.GetSharedParty({ link: params.id });
 
-      if (session) {
+      if (await isAuthenticated(request)) {
         await guestService.AddGuestWithLink({ link: params.id });
         return redirect(`/events/${event.id}`);
       }
@@ -51,7 +48,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
 export default function EventById() {
   const { t } = useTranslation();
-  const loaderData = useLoaderData<typeof loader>();
+  const loaderData = useLoaderData<LoaderType>();
   const location = useLocation();
 
   let currentTab = `${location.pathname.split("/").pop() || '.'}${location.search}`;

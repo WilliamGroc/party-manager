@@ -1,5 +1,5 @@
-import { RemixBrowser } from "@remix-run/react";
 import i18next from "i18next";
+import { HydratedRouter } from "react-router/dom";
 import I18nextBrowserLanguageDetector from "i18next-browser-languagedetector";
 import { startTransition, StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
@@ -31,7 +31,7 @@ async function main() {
       document,
       <I18nextProvider i18n={i18next}>
         <StrictMode>
-          <RemixBrowser />
+          <HydratedRouter />
         </StrictMode>
       </I18nextProvider>,
     );

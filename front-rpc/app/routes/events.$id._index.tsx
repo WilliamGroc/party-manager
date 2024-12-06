@@ -1,11 +1,10 @@
 
-import { ActionFunctionArgs } from "@remix-run/node";
-import { Link, useActionData, useNavigate, useRouteLoaderData, useSubmit } from "@remix-run/react";
+import { ActionFunctionArgs, Link, useActionData, useNavigate, useRouteLoaderData, useSubmit } from "react-router";
 import { dateServerParse } from "~/utils/date";
 import { format } from 'date-fns'
 import { css } from "styled-system/css";
 import { fr } from "date-fns/locale";
-import { loader as eventIdLoader } from "~/routes/events.$id";
+import { loader as eventIdLoader, LoaderType } from "~/routes/events.$id";
 import { DeleteButton } from "~/components/deleteButton";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -36,7 +35,7 @@ const titleStyle = css({
 
 export default function EventByIdDescription() {
   const { t } = useTranslation();
-  const loaderData = useRouteLoaderData<typeof eventIdLoader>("routes/events.$id");
+  const loaderData = useRouteLoaderData<LoaderType>("routes/events.$id");
   const actionData = useActionData<typeof action>();
 
   const submit = useSubmit();

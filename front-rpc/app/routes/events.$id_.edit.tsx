@@ -1,5 +1,4 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Form, useLoaderData, useSubmit } from "@remix-run/react";
+import { ActionFunctionArgs, Form, LoaderFunctionArgs, redirect, useLoaderData, useSubmit } from "react-router";
 import { dateServerParse, dateToServerFormat } from "~/utils/date";
 import { format } from 'date-fns'
 import { z } from "zod";
@@ -10,6 +9,8 @@ import { handle } from "~/utils/handle";
 import { PartyService } from "~/services/party/index.server";
 import { PartyResponse } from "proto/party/PartyResponse";
 import { getToken } from "~/services/session.server";
+
+type LoaderType = { event: PartyResponse };
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   return handle<{ event: PartyResponse }>(async () => {
@@ -49,7 +50,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function UpdateEvent() {
   const { t } = useTranslation();
-  const data = useLoaderData<typeof loader>();
+  const data = useLoaderData<LoaderType>();
   const actionData = useLoaderData<DataResponse<null>>();
   const submit = useSubmit();
 

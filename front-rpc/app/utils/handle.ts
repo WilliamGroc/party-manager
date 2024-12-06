@@ -1,4 +1,4 @@
-import { redirect, TypedResponse } from "@remix-run/node";
+import { redirect } from "react-router";
 import { AxiosError } from "axios";
 import { z } from "zod";
 
@@ -24,7 +24,7 @@ export function handleError(error: Error | AxiosError) {
 
 export enum ErrorType {
   NotFound = 'nf',
-  Unauthorized = 'ua',	
+  Unauthorized = 'ua',
   Forbidden = 'fb',
   BadRequest = 'br',
   InternalServerError = 'is',
@@ -43,7 +43,7 @@ export function getErrorType(error: Error | AxiosError): ErrorType {
       status,
       data: error.response.data
     })
-    
+
     if (status === 401 && error.response.data === 'Invalid token')
       return ErrorType.InvalidToken;
     if (status === 404 && error.response.data === 'Invalid link')
@@ -54,7 +54,7 @@ export function getErrorType(error: Error | AxiosError): ErrorType {
       return ErrorType.InvalidCredentials;
     if (status === 400 && error.response.data === 'Invalid form')
       return ErrorType.InvalidForm;
-    
+
     switch (status) {
       case 401:
         return ErrorType.Unauthorized;
@@ -72,7 +72,7 @@ export function getErrorType(error: Error | AxiosError): ErrorType {
   return ErrorType.InternalServerError;
 }
 
-export async function handle<T>(fn: () => Promise<T>): Promise<T | TypedResponse<never>> {
+export async function handle<T>(fn: () => Promise<T>): Promise<T | Response> {
   try {
     return await fn();
   } catch (error: any) {

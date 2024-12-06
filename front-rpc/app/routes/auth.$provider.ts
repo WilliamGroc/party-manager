@@ -1,4 +1,4 @@
-import { ActionFunctionArgs } from "@remix-run/node"
+import { ActionFunctionArgs } from "react-router"
 import { authenticator } from "~/services/auth/auth.server";
 
 export let action = ({ request, params }: ActionFunctionArgs) => {
