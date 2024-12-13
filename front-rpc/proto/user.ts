@@ -8,16 +8,10 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 };
 
 export interface ProtoGrpcType {
-  google: {
-    protobuf: {
-      Empty: MessageTypeDefinition
-    }
-  }
   user: {
     LoginRequest: MessageTypeDefinition
     LoginResponse: MessageTypeDefinition
-    RegisterRequest: MessageTypeDefinition
-    UpdateRequest: MessageTypeDefinition
+    MeRequest: MessageTypeDefinition
     User: SubtypeConstructor<typeof grpc.Client, _user_UserClient> & { service: _user_UserDefinition }
     UserResponse: MessageTypeDefinition
   }

@@ -10,13 +10,13 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { handle } from "../utils/handle";
 import { PartyService } from "~/services/party/index.server";
-import { getToken } from "~/services/session.server";
+import { getUserId } from "~/services/userSession.server";
 
 export async function action({ params, request }: ActionFunctionArgs) {
   return handle(async () => {
-    const token = await getToken(request);
-    const partyService = new PartyService(token);
-    await partyService.DeleteParty({ id: Number(params.id) });
+    const userId = await getUserId(request);
+    const partyService = new PartyService();
+    await partyService.DeleteParty({ id: Number(params.id), userId });
     return { success: true }
   });
 }

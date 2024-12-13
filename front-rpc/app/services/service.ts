@@ -2,13 +2,11 @@ import { Metadata } from "@grpc/grpc-js";
 
 export class AppService {
   metadata: Metadata;
+  baseApiUrl = process.env.VITE_BACKEND_APIURL || '';
 
-  constructor(token?: string) {
+  constructor() {
     this.metadata = new Metadata();
-
-    if (token) {
-      this.metadata.set('authorization', `Bearer ${token}`);
-    }
+    this.metadata.set('api-key', process.env.VITE_BACKEND_APIKEY || '');
   }
 }
 

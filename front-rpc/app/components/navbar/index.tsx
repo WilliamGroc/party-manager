@@ -10,9 +10,10 @@ import { useLocation, useParams, Link } from "react-router";
 type Props = {
   isAuthenticated: boolean;
   setLanguage: (lang: 'fr' | 'en') => void;
+  userName?: string
 }
 
-export function Navbar({ isAuthenticated, setLanguage }: Props) {
+export function Navbar({ isAuthenticated, setLanguage, userName }: Props) {
   const { t } = useTranslation();
   const location = useLocation();
   const params = useParams<{ id: string }>();
@@ -60,7 +61,7 @@ export function Navbar({ isAuthenticated, setLanguage }: Props) {
       })}>
         {!isAuthenticated ? (
           <li>
-            <Link to={setInvitationLink("/login")} >
+            <Link to={setInvitationLink("/auth")} >
               {t('Authentication')}
             </Link>
           </li>) : (
@@ -81,20 +82,25 @@ export function Navbar({ isAuthenticated, setLanguage }: Props) {
       </ul>
     </div>
     <div className={css({ display: 'flex' })}>
-      <button
-        className={css({
-          minW: '0!'
-        })}
-        onClick={() => setLanguage('fr')}>
-        <img src={imgFr} alt="fr" />
-      </button>
-      <button
-        className={css({
-          minW: '0!'
-        })}
-        onClick={() => setLanguage('en')}>
-        <img src={imgUs} alt="en" />
-      </button>
+      <div className={css({ display: 'flex', alignItems: 'center' })}>
+        {isAuthenticated && <span>{userName}</span>}
+      </div>
+      <div className={css({ display: 'flex' })}>
+        <button
+          className={css({
+            minW: '0!'
+          })}
+          onClick={() => setLanguage('fr')}>
+          <img src={imgFr} alt="fr" />
+        </button>
+        <button
+          className={css({
+            minW: '0!'
+          })}
+          onClick={() => setLanguage('en')}>
+          <img src={imgUs} alt="en" />
+        </button>
+      </div>
     </div>
   </nav>
 }

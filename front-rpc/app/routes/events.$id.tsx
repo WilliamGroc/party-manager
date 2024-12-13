@@ -5,8 +5,9 @@ import { css } from "styled-system/css";
 import { Tabs } from "~/components/tabs";
 import { GuestService } from "~/services/guest/index.server";
 import { PartyService } from "~/services/party/index.server";
-import { decodeToken, getToken, isAuthenticated } from "~/services/session.server";
+import { getUserId, isAuthenticated } from "~/services/userSession.server";
 import { handle } from "~/utils/handle";
+import { eventSessionStorage } from "~/services/eventSession.server";
 
 export type LoaderType = { event: PartyResponse, isOwner: boolean, userId: number };
 
@@ -14,17 +15,24 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   return handle<Response | { event: PartyResponse, isOwner: boolean, userId: number }>(async () => {
     const { searchParams } = new URL(request.url);
 
-    const token = await getToken(request);
+    const userId = await getUserId(request);
 
-    const partyService = new PartyService(token);
-    const guestService = new GuestService(token);
+    const partyService = new PartyService();
+    const guestService = new GuestService();
 
     if (searchParams.has('invitation')) {
       const event = await partyService.GetSharedParty({ link: params.id });
 
       if (await isAuthenticated(request)) {
-        await guestService.AddGuestWithLink({ link: params.id });
-        return redirect(`/events/${event.id}`);
+        await guestService.AddGuestWithLink({ link: params.id, userId });
+        const eventSession = await eventSessionStorage.getSession(request.headers.get("Cookie"));
+        eventSession.set("invitation", '');
+
+        return redirect(`/events/${event.id}`, {
+          headers: {
+            "Set-Cookie": await eventSessionStorage.commitSession(eventSession)
+          }
+        });
       }
 
       return {
@@ -34,14 +42,12 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       };
     }
 
-    const { userId } = decodeToken(token!);
-
-    const event = await partyService.GetParty({ id: Number(params.id) });
+    const event = await partyService.GetParty({ id: Number(params.id), userId });
 
     return {
       event,
       isOwner: event.hostId === userId,
-      userId
+      userId: userId || 0
     };
   });
 }

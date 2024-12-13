@@ -4,7 +4,7 @@ import { z } from "zod";
 import { FormError } from "~/components/formError";
 import { DataResponse } from "~/models/data";
 import { PartyService } from "~/services/party/index.server";
-import { getToken } from "~/services/session.server";
+import { getUserId } from "~/services/userSession.server";
 import { dateToServerFormat } from "~/utils/date";
 import { handle } from "~/utils/handle";
 
@@ -13,23 +13,26 @@ const validator = z.object({
   description: z.string().min(1),
   date: z.string().min(1),
   location: z.string().min(1),
+  userId: z.number()
 });
 
 export async function action({ request }: ActionFunctionArgs) {
   return handle(async () => {
     const formData = await request.formData();
 
+    const userId = await getUserId(request);
+
     const data = {
       name: formData.get('name'),
       description: formData.get('description'),
       date: formData.get('date'),
       location: formData.get('location'),
+      userId
     };
 
     const body = validator.parse(data);
 
-    const token = await getToken(request);
-    const partyService = new PartyService(token);
+    const partyService = new PartyService();
     const event = await partyService.CreateParty(body);
 
     return redirect(`/events/${event.id}`);

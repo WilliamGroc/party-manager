@@ -3,8 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
-	"partymanager/server/auth"
-	"slices"
+	"os"
 	"strings"
 	"time"
 
@@ -16,42 +15,29 @@ import (
 
 var (
 	errMissingMetadata = status.Errorf(codes.InvalidArgument, "missing metadata")
-	errInvalidToken    = status.Errorf(codes.Unauthenticated, "invalid token")
+	errInvalidApiKey   = status.Errorf(codes.Unauthenticated, "invalid api key")
 )
 
-func valid(authorization []string) bool {
-	if len(authorization) < 1 {
-		return false
+func validateApiKey(ctx context.Context) error {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return errMissingMetadata
 	}
-	token := strings.TrimPrefix(authorization[0], "Bearer ")
-	return auth.ValidateToken(token)
+
+	apiKey := md["api-key"]
+
+	if len(apiKey) == 0 || !strings.Contains(os.Getenv("API_KEYS"), apiKey[0]) {
+		return errInvalidApiKey
+	}
+
+	return nil
 }
 
-var validationExceptions = []string{
-	"/user.User/Login",
-	"/user.User/Register",
-	"/party.Party/GetSharedParty",
-	"/guest.Guest/UpdateGuest",
-}
-
-// middleware ensures a valid token exists within a request's metadata. If
-// the token is missing or invalid, the interceptor blocks execution of the
-// handler and returns an error. Otherwise, the interceptor invokes the unary
-// handler.
 func middleware(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 	fmt.Printf("[%s] %s\n", time.Now().Format("2006-01-02 15:04:05"), info.FullMethod)
 
-	md, ok := metadata.FromIncomingContext(ctx)
-
-	if !ok {
-		return nil, errMissingMetadata
-	}
-
-	if !slices.Contains(validationExceptions, info.FullMethod) {
-		if !valid(md["authorization"]) {
-			fmt.Printf("[%s] AuthError - Method: %s, Response: %v\n", time.Now().Format("2006-01-02 15:04:05"), info.FullMethod, errInvalidToken)
-			return nil, errInvalidToken
-		}
+	if validateApiKey(ctx) != nil {
+		return nil, errInvalidApiKey
 	}
 
 	resp, err := handler(ctx, req)

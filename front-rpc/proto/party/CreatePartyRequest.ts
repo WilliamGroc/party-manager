@@ -6,6 +6,7 @@ export interface CreatePartyRequest {
   'description'?: (string);
   'location'?: (string);
   'date'?: (string);
+  'userId'?: (number);
 }
 
 export interface CreatePartyRequest__Output {
@@ -13,4 +14,5 @@ export interface CreatePartyRequest__Output {
   'description': (string);
   'location': (string);
   'date': (string);
+  'userId': (number);
 }

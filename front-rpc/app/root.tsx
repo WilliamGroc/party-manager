@@ -10,7 +10,8 @@ import { Navbar } from "./components/navbar";
 import i18next, { localeCookie } from "./i18n/i18next.server";
 import { useChangeLanguage } from "remix-i18next/react";
 import { CloseButtonProps } from "node_modules/react-toastify/dist/components";
-import { getUser } from "./services/session.server";
+import { getUser } from "./services/userSession.server";
+import { UserService } from "./services/user/index.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: panda },
@@ -33,8 +34,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const locale = await i18next.getLocale(request) || 'en';
 
   try {
-    const user = await getUser(request);
-    return { isAuthenticated: !!user, locale };
+    const authenticatedUser = await getUser(request);
+    let user = null;
+
+    if (authenticatedUser) {
+      const userService = await new UserService();
+      user = await userService.GetMe({ id: authenticatedUser.id });
+    }
+
+    return { isAuthenticated: !!authenticatedUser, locale, user };
   } catch (e) {
     console.error('root', e);
     return { isAuthenticated: false, locale };
@@ -76,7 +84,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <Navbar isAuthenticated={data?.isAuthenticated} setLanguage={handleLanguageChange} />
+        <Navbar isAuthenticated={data?.isAuthenticated} setLanguage={handleLanguageChange} userName={data?.user?.username} />
         <div className={rootStyle['body-container']}>
           {children}
           <ToastContainer

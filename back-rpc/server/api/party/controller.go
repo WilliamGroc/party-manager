@@ -3,10 +3,7 @@ package party
 import (
 	context "context"
 	"errors"
-	"fmt"
-	"partymanager/server/auth"
 	"partymanager/server/models"
-	"strconv"
 	"time"
 
 	"partymanager/server/api/guest"
@@ -24,18 +21,10 @@ func NewPartyService(db *gorm.DB) *PartyService {
 	return &PartyService{DB: db}
 }
 
-func (ur *PartyService) GetAllParty(ctx context.Context, in *empty.Empty) (*PartiesResponse, error) {
-	token, err := auth.GetToken(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
-
+func (ur *PartyService) GetAllParty(ctx context.Context, in *GetAllRequest) (*PartiesResponse, error) {
 	var parties []models.Party
 
-	ur.DB.Model(&models.Party{}).Joins("LEFT JOIN guests on guests.party_id = parties.id").Not("deleted_at IS NOT NULL").Where("host_id = ?", idInt).Or("guests.email = ?", token.Email).Group("parties.id").Find(&parties)
+	ur.DB.Model(&models.Party{}).Joins("LEFT JOIN guests on guests.party_id = parties.id").Not("deleted_at IS NOT NULL").Where("host_id = ?", in.UserId).Or("guests.user_id = ?", in.UserId).Group("parties.id").Find(&parties)
 
 	var response = []*PartyResponse{}
 
@@ -47,14 +36,6 @@ func (ur *PartyService) GetAllParty(ctx context.Context, in *empty.Empty) (*Part
 }
 
 func (ur *PartyService) CreateParty(ctx context.Context, in *CreatePartyRequest) (*CreatePartyResponse, error) {
-	token, err := auth.GetToken(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
-
 	// date, err := time.Parse("2006-01-02T15:04", body.Date)
 	date, err := time.Parse("2006-01-02 15:04:05 -0700", in.Date)
 
@@ -67,7 +48,7 @@ func (ur *PartyService) CreateParty(ctx context.Context, in *CreatePartyRequest)
 		Description: in.Description,
 		Location:    in.Location,
 		Date:        date,
-		HostID:      uint(idInt),
+		HostID:      uint(in.UserId),
 	}
 
 	ur.DB.Create(&party)
@@ -76,16 +57,8 @@ func (ur *PartyService) CreateParty(ctx context.Context, in *CreatePartyRequest)
 }
 
 func (ur *PartyService) GetParty(ctx context.Context, in *GetRequest) (*PartyResponse, error) {
-	token, err := auth.GetToken(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	useridInt, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId))
-
 	var party models.Party
-	ur.DB.Model(&models.Party{}).Joins("LEFT JOIN guests on guests.party_id = parties.id").Where("(host_id = ? OR guests.email = ?) AND parties.id = ?", useridInt, token.Email, in.Id).Group("parties.id").First(&party)
+	ur.DB.Model(&models.Party{}).Joins("LEFT JOIN guests on guests.party_id = parties.id").Where("(host_id = ? OR guests.user_id = ?) AND parties.id = ?", in.UserId, in.UserId, in.Id).Group("parties.id").First(&party)
 
 	if party.ID == 0 {
 		return nil, errors.New("party not found")
@@ -117,16 +90,8 @@ func (ur *PartyService) GetParty(ctx context.Context, in *GetRequest) (*PartyRes
 }
 
 func (ur *PartyService) UpdateParty(ctx context.Context, in *UpdatePartyRequest) (*PartyResponse, error) {
-	token, err := auth.GetToken(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
-
 	var party models.Party
-	ur.DB.Where(map[string]interface{}{"host_id": idInt, "id": in.Id}).First(&party)
+	ur.DB.Where(map[string]interface{}{"host_id": in.UserId, "id": in.Id}).First(&party)
 
 	if party.ID == 0 {
 		return nil, errors.New("party not found")
@@ -165,17 +130,9 @@ func (ur *PartyService) UpdateParty(ctx context.Context, in *UpdatePartyRequest)
 }
 
 func (ur *PartyService) DeleteParty(ctx context.Context, in *GetRequest) (*empty.Empty, error) {
-	token, err := auth.GetToken(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	idInt, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
-
 	var party models.Party
 	party.ID = uint(in.Id)
-	party.HostID = uint(idInt)
+	party.HostID = uint(in.UserId)
 
 	ur.DB.First(&party)
 

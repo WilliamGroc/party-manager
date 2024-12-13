@@ -27,6 +27,7 @@ export interface ProtoGrpcType {
   party: {
     CreatePartyRequest: MessageTypeDefinition
     CreatePartyResponse: MessageTypeDefinition
+    GetAllRequest: MessageTypeDefinition
     GetRequest: MessageTypeDefinition
     GetSharedRequest: MessageTypeDefinition
     PartiesResponse: MessageTypeDefinition

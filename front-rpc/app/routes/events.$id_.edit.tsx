@@ -8,15 +8,15 @@ import { useTranslation } from "react-i18next";
 import { handle } from "~/utils/handle";
 import { PartyService } from "~/services/party/index.server";
 import { PartyResponse } from "proto/party/PartyResponse";
-import { getToken } from "~/services/session.server";
+import { getUserId } from "~/services/userSession.server";
 
 type LoaderType = { event: PartyResponse };
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   return handle<{ event: PartyResponse }>(async () => {
-    const token = await getToken(request);
-    const partyService = new PartyService(token);
-    const party = await partyService.GetParty({ id: Number(params.id) });
+    const userId = await getUserId(request);
+    const partyService = new PartyService();
+    const party = await partyService.GetParty({ id: Number(params.id), userId });
     return { event: party };
   });
 }
@@ -40,9 +40,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       location: formData.get('location') as string,
     });
 
-    const token = await getToken(request);
-    const partyService = new PartyService(token);
-    await partyService.UpdateParty({ id: Number(id), ...body });
+    const userId = await getUserId(request);
+    const partyService = new PartyService();
+    await partyService.UpdateParty({ id: Number(id), userId, ...body });
 
     return redirect(`/events/${id}`);
   });

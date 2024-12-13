@@ -8,7 +8,7 @@ import { enUS } from "date-fns/locale/en-US";
 import { handle } from "~/utils/handle";
 import { PartyService } from "~/services/party/index.server";
 import { PartyResponse } from "proto/party/PartyResponse";
-import { getToken, getUser, isAuthenticated } from "~/services/session.server";
+import { getUserId, getUser, isAuthenticated } from "~/services/userSession.server";
 
 type LoaderData = {
   isAuthenticated: boolean;
@@ -22,9 +22,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const locale = await (i18next.getLocale(request) || 'en') as 'en' | 'fr';
 
     if (await isAuthenticated(request)) {
-      const token = await getToken(request);
-      const partyService = new PartyService(token);
-      const { parties } = await partyService.GetAllParty();
+      const userId = await getUserId(request);
+      const partyService = new PartyService();
+      const { parties } = await partyService.GetAllParty({ userId });
 
       return {
         isAuthenticated: true,
@@ -40,7 +40,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       };
     }
 
-    return redirect('/login');
+    return redirect('/auth');
   });
 }
 

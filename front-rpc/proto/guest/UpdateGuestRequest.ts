@@ -6,6 +6,7 @@ export interface UpdateGuestRequest {
   'guestId'?: (number);
   'present'?: (string);
   'link'?: (string);
+  'userId'?: (number);
 }
 
 export interface UpdateGuestRequest__Output {
@@ -13,4 +14,5 @@ export interface UpdateGuestRequest__Output {
   'guestId': (number);
   'present': (string);
   'link': (string);
+  'userId': (number);
 }

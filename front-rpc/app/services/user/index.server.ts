@@ -7,6 +7,7 @@ import { RegisterRequest } from 'proto/user/RegisterRequest';
 import { UpdateRequest } from 'proto/user/UpdateRequest';
 import { UserResponse } from 'proto/user/UserResponse';
 import { LoginResponse } from 'proto/user/LoginResponse';
+import { MeRequest } from 'proto/user/MeRequest';
 
 const userPackageDefinition = protoLoader.loadSync('../back-rpc/server/api/user/user.proto',
   {
@@ -16,30 +17,19 @@ const userPackageDefinition = protoLoader.loadSync('../back-rpc/server/api/user/
     oneofs: true
   });
 const userPackage = (grpc.loadPackageDefinition(userPackageDefinition) as unknown) as UserGrpcType;
-export const userClient = new userPackage.user.User('localhost:1234', grpc.credentials.createInsecure());
 
 export class UserService extends AppService {
-  async GetMe(): Promise<UserResponse> {
+  userClient = new userPackage.user.User(this.baseApiUrl, grpc.credentials.createInsecure());
+
+  async GetMe(payload: MeRequest): Promise<UserResponse> {
     return new Promise((resolve, reject) => {
-      userClient.GetMe({}, this.metadata, handlePromise(resolve, reject));
+      this.userClient.GetMe(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 
   async Login(payload: LoginRequest): Promise<LoginResponse> {
     return new Promise((resolve, reject) => {
-      userClient.Login(payload, handlePromise(resolve, reject));
-    });
-  }
-
-  async Register(payload: RegisterRequest): Promise<LoginResponse> {
-    return new Promise((resolve, reject) => {
-      userClient.Register(payload, handlePromise(resolve, reject));
-    });
-  }
-
-  async UpdateMe(payload: UpdateRequest): Promise<UserResponse> {
-    return new Promise((resolve, reject) => {
-      userClient.UpdateMe(payload, this.metadata, handlePromise(resolve, reject));
+      this.userClient.Login(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 }

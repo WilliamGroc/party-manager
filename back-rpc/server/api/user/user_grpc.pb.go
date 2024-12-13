@@ -8,7 +8,6 @@ package user
 
 import (
 	context "context"
-	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,10 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	User_Login_FullMethodName    = "/user.User/Login"
-	User_Register_FullMethodName = "/user.User/Register"
-	User_GetMe_FullMethodName    = "/user.User/GetMe"
-	User_UpdateMe_FullMethodName = "/user.User/UpdateMe"
+	User_Login_FullMethodName = "/user.User/Login"
+	User_GetMe_FullMethodName = "/user.User/GetMe"
 )
 
 // UserClient is the client API for User service.
@@ -31,9 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	GetMe(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*UserResponse, error)
-	UpdateMe(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UserResponse, error)
+	GetMe(ctx context.Context, in *MeRequest, opts ...grpc.CallOption) (*UserResponse, error)
 }
 
 type userClient struct {
@@ -54,30 +49,10 @@ func (c *userClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.C
 	return out, nil
 }
 
-func (c *userClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(LoginResponse)
-	err := c.cc.Invoke(ctx, User_Register_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) GetMe(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*UserResponse, error) {
+func (c *userClient) GetMe(ctx context.Context, in *MeRequest, opts ...grpc.CallOption) (*UserResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UserResponse)
 	err := c.cc.Invoke(ctx, User_GetMe_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) UpdateMe(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UserResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserResponse)
-	err := c.cc.Invoke(ctx, User_UpdateMe_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,9 +64,7 @@ func (c *userClient) UpdateMe(ctx context.Context, in *UpdateRequest, opts ...gr
 // for forward compatibility.
 type UserServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	Register(context.Context, *RegisterRequest) (*LoginResponse, error)
-	GetMe(context.Context, *empty.Empty) (*UserResponse, error)
-	UpdateMe(context.Context, *UpdateRequest) (*UserResponse, error)
+	GetMe(context.Context, *MeRequest) (*UserResponse, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -105,14 +78,8 @@ type UnimplementedUserServer struct{}
 func (UnimplementedUserServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedUserServer) Register(context.Context, *RegisterRequest) (*LoginResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
-}
-func (UnimplementedUserServer) GetMe(context.Context, *empty.Empty) (*UserResponse, error) {
+func (UnimplementedUserServer) GetMe(context.Context, *MeRequest) (*UserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMe not implemented")
-}
-func (UnimplementedUserServer) UpdateMe(context.Context, *UpdateRequest) (*UserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateMe not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 func (UnimplementedUserServer) testEmbeddedByValue()              {}
@@ -153,26 +120,8 @@ func _User_Login_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegisterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).Register(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_Register_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).Register(ctx, req.(*RegisterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _User_GetMe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(empty.Empty)
+	in := new(MeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -184,25 +133,7 @@ func _User_GetMe_Handler(srv interface{}, ctx context.Context, dec func(interfac
 		FullMethod: User_GetMe_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetMe(ctx, req.(*empty.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_UpdateMe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).UpdateMe(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_UpdateMe_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).UpdateMe(ctx, req.(*UpdateRequest))
+		return srv.(UserServer).GetMe(ctx, req.(*MeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -219,16 +150,8 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_Login_Handler,
 		},
 		{
-			MethodName: "Register",
-			Handler:    _User_Register_Handler,
-		},
-		{
 			MethodName: "GetMe",
 			Handler:    _User_GetMe_Handler,
-		},
-		{
-			MethodName: "UpdateMe",
-			Handler:    _User_UpdateMe_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

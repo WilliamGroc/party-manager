@@ -8,6 +8,7 @@ import { CreatePartyRequest } from 'proto/party/CreatePartyRequest';
 import { GetRequest } from 'proto/party/GetRequest';
 import { PartiesResponse } from 'proto/party/PartiesResponse';
 import { UpdatePartyRequest } from 'proto/party/UpdatePartyRequest';
+import { GetAllRequest } from 'proto/party/GetAllRequest';
 
 const partyPackageDefinition = protoLoader.loadSync('../back-rpc/server/api/party/party.proto',
   {
@@ -18,42 +19,43 @@ const partyPackageDefinition = protoLoader.loadSync('../back-rpc/server/api/part
     includeDirs: ['../back-rpc']
   });
 const partyPackage = (grpc.loadPackageDefinition(partyPackageDefinition) as unknown) as PartyGrpcType;
-export const partyClient = new partyPackage.party.Party('localhost:1234', grpc.credentials.createInsecure());
 
 export class PartyService extends AppService {
+  partyClient = new partyPackage.party.Party(this.baseApiUrl, grpc.credentials.createInsecure());
+
   async GetSharedParty(payload: GetSharedRequest): Promise<PartyResponse> {
     return new Promise((resolve, reject) => {
-      partyClient.GetSharedParty(payload, this.metadata, handlePromise(resolve, reject));
+      this.partyClient.GetSharedParty(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 
   async CreateParty(payload: CreatePartyRequest): Promise<PartyResponse> {
     return new Promise((resolve, reject) => {
-      partyClient.CreateParty(payload, this.metadata, handlePromise(resolve, reject));
+      this.partyClient.CreateParty(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 
   async DeleteParty(payload: GetRequest): Promise<void> {
     return new Promise((resolve, reject) => {
-      partyClient.DeleteParty(payload, this.metadata, handlePromise(resolve, reject));
+      this.partyClient.DeleteParty(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 
-  async GetAllParty(): Promise<PartiesResponse> {
+  async GetAllParty(payload: GetAllRequest): Promise<PartiesResponse> {
     return new Promise((resolve, reject) => {
-      partyClient.GetAllParty({}, this.metadata, handlePromise(resolve, reject));
+      this.partyClient.GetAllParty(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 
   async GetParty(payload: GetRequest): Promise<PartyResponse> {
     return new Promise((resolve, reject) => {
-      partyClient.GetParty(payload, this.metadata, handlePromise(resolve, reject));
+      this.partyClient.GetParty(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 
   async UpdateParty(payload: UpdatePartyRequest): Promise<PartyResponse> {
     return new Promise((resolve, reject) => {
-      partyClient.UpdateParty(payload, this.metadata, handlePromise(resolve, reject));
+      this.partyClient.UpdateParty(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 }

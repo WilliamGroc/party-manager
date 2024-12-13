@@ -33,7 +33,6 @@ export function GuestRow({ guest, onSetPresence, onDelete, onShare, isOwner, him
         flex: '1'
       }
     })}>
-      <div>{guest.userId}</div>
       <div>{guest.username}</div>
       <div>{guest.email}</div>
     </div>

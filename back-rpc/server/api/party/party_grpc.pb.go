@@ -32,7 +32,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PartyClient interface {
-	GetAllParty(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*PartiesResponse, error)
+	GetAllParty(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*PartiesResponse, error)
 	CreateParty(ctx context.Context, in *CreatePartyRequest, opts ...grpc.CallOption) (*CreatePartyResponse, error)
 	GetParty(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*PartyResponse, error)
 	UpdateParty(ctx context.Context, in *UpdatePartyRequest, opts ...grpc.CallOption) (*PartyResponse, error)
@@ -48,7 +48,7 @@ func NewPartyClient(cc grpc.ClientConnInterface) PartyClient {
 	return &partyClient{cc}
 }
 
-func (c *partyClient) GetAllParty(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*PartiesResponse, error) {
+func (c *partyClient) GetAllParty(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*PartiesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PartiesResponse)
 	err := c.cc.Invoke(ctx, Party_GetAllParty_FullMethodName, in, out, cOpts...)
@@ -112,7 +112,7 @@ func (c *partyClient) GetSharedParty(ctx context.Context, in *GetSharedRequest, 
 // All implementations must embed UnimplementedPartyServer
 // for forward compatibility.
 type PartyServer interface {
-	GetAllParty(context.Context, *empty.Empty) (*PartiesResponse, error)
+	GetAllParty(context.Context, *GetAllRequest) (*PartiesResponse, error)
 	CreateParty(context.Context, *CreatePartyRequest) (*CreatePartyResponse, error)
 	GetParty(context.Context, *GetRequest) (*PartyResponse, error)
 	UpdateParty(context.Context, *UpdatePartyRequest) (*PartyResponse, error)
@@ -128,7 +128,7 @@ type PartyServer interface {
 // pointer dereference when methods are called.
 type UnimplementedPartyServer struct{}
 
-func (UnimplementedPartyServer) GetAllParty(context.Context, *empty.Empty) (*PartiesResponse, error) {
+func (UnimplementedPartyServer) GetAllParty(context.Context, *GetAllRequest) (*PartiesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllParty not implemented")
 }
 func (UnimplementedPartyServer) CreateParty(context.Context, *CreatePartyRequest) (*CreatePartyResponse, error) {
@@ -168,7 +168,7 @@ func RegisterPartyServer(s grpc.ServiceRegistrar, srv PartyServer) {
 }
 
 func _Party_GetAllParty_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(empty.Empty)
+	in := new(GetAllRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func _Party_GetAllParty_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: Party_GetAllParty_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PartyServer).GetAllParty(ctx, req.(*empty.Empty))
+		return srv.(PartyServer).GetAllParty(ctx, req.(*GetAllRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

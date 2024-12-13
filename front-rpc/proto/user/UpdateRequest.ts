@@ -2,13 +2,13 @@
 
 
 export interface UpdateRequest {
+  'id'?: (number);
   'email'?: (string);
-  'password'?: (string);
   'username'?: (string);
 }
 
 export interface UpdateRequest__Output {
+  'id': (number);
   'email': (string);
-  'password': (string);
   'username': (string);
 }

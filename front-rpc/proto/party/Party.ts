@@ -5,6 +5,7 @@ import type { MethodDefinition } from '@grpc/proto-loader'
 import type { CreatePartyRequest as _party_CreatePartyRequest, CreatePartyRequest__Output as _party_CreatePartyRequest__Output } from '../party/CreatePartyRequest';
 import type { CreatePartyResponse as _party_CreatePartyResponse, CreatePartyResponse__Output as _party_CreatePartyResponse__Output } from '../party/CreatePartyResponse';
 import type { Empty as _google_protobuf_Empty, Empty__Output as _google_protobuf_Empty__Output } from '../google/protobuf/Empty';
+import type { GetAllRequest as _party_GetAllRequest, GetAllRequest__Output as _party_GetAllRequest__Output } from '../party/GetAllRequest';
 import type { GetRequest as _party_GetRequest, GetRequest__Output as _party_GetRequest__Output } from '../party/GetRequest';
 import type { GetSharedRequest as _party_GetSharedRequest, GetSharedRequest__Output as _party_GetSharedRequest__Output } from '../party/GetSharedRequest';
 import type { PartiesResponse as _party_PartiesResponse, PartiesResponse__Output as _party_PartiesResponse__Output } from '../party/PartiesResponse';
@@ -30,14 +31,14 @@ export interface PartyClient extends grpc.Client {
   deleteParty(argument: _party_GetRequest, options: grpc.CallOptions, callback: grpc.requestCallback<_google_protobuf_Empty__Output>): grpc.ClientUnaryCall;
   deleteParty(argument: _party_GetRequest, callback: grpc.requestCallback<_google_protobuf_Empty__Output>): grpc.ClientUnaryCall;
   
-  GetAllParty(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
-  GetAllParty(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
-  GetAllParty(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
-  GetAllParty(argument: _google_protobuf_Empty, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
-  getAllParty(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
-  getAllParty(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
-  getAllParty(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
-  getAllParty(argument: _google_protobuf_Empty, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
+  GetAllParty(argument: _party_GetAllRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
+  GetAllParty(argument: _party_GetAllRequest, metadata: grpc.Metadata, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
+  GetAllParty(argument: _party_GetAllRequest, options: grpc.CallOptions, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
+  GetAllParty(argument: _party_GetAllRequest, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
+  getAllParty(argument: _party_GetAllRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
+  getAllParty(argument: _party_GetAllRequest, metadata: grpc.Metadata, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
+  getAllParty(argument: _party_GetAllRequest, options: grpc.CallOptions, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
+  getAllParty(argument: _party_GetAllRequest, callback: grpc.requestCallback<_party_PartiesResponse__Output>): grpc.ClientUnaryCall;
   
   GetParty(argument: _party_GetRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_party_PartyResponse__Output>): grpc.ClientUnaryCall;
   GetParty(argument: _party_GetRequest, metadata: grpc.Metadata, callback: grpc.requestCallback<_party_PartyResponse__Output>): grpc.ClientUnaryCall;
@@ -73,7 +74,7 @@ export interface PartyHandlers extends grpc.UntypedServiceImplementation {
   
   DeleteParty: grpc.handleUnaryCall<_party_GetRequest__Output, _google_protobuf_Empty>;
   
-  GetAllParty: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _party_PartiesResponse>;
+  GetAllParty: grpc.handleUnaryCall<_party_GetAllRequest__Output, _party_PartiesResponse>;
   
   GetParty: grpc.handleUnaryCall<_party_GetRequest__Output, _party_PartyResponse>;
   
@@ -86,7 +87,7 @@ export interface PartyHandlers extends grpc.UntypedServiceImplementation {
 export interface PartyDefinition extends grpc.ServiceDefinition {
   CreateParty: MethodDefinition<_party_CreatePartyRequest, _party_CreatePartyResponse, _party_CreatePartyRequest__Output, _party_CreatePartyResponse__Output>
   DeleteParty: MethodDefinition<_party_GetRequest, _google_protobuf_Empty, _party_GetRequest__Output, _google_protobuf_Empty__Output>
-  GetAllParty: MethodDefinition<_google_protobuf_Empty, _party_PartiesResponse, _google_protobuf_Empty__Output, _party_PartiesResponse__Output>
+  GetAllParty: MethodDefinition<_party_GetAllRequest, _party_PartiesResponse, _party_GetAllRequest__Output, _party_PartiesResponse__Output>
   GetParty: MethodDefinition<_party_GetRequest, _party_PartyResponse, _party_GetRequest__Output, _party_PartyResponse__Output>
   GetSharedParty: MethodDefinition<_party_GetSharedRequest, _party_PartyResponse, _party_GetSharedRequest__Output, _party_PartyResponse__Output>
   UpdateParty: MethodDefinition<_party_UpdatePartyRequest, _party_PartyResponse, _party_UpdatePartyRequest__Output, _party_PartyResponse__Output>

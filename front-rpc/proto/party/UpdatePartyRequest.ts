@@ -7,6 +7,7 @@ export interface UpdatePartyRequest {
   'description'?: (string);
   'location'?: (string);
   'date'?: (string);
+  'userId'?: (number);
 }
 
 export interface UpdatePartyRequest__Output {
@@ -15,4 +16,5 @@ export interface UpdatePartyRequest__Output {
   'description': (string);
   'location': (string);
   'date': (string);
+  'userId': (number);
 }

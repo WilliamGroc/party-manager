@@ -19,42 +19,43 @@ const guestPackageDefinition = protoLoader.loadSync('../back-rpc/server/api/gues
     oneofs: true,
   });
 const guestPackage = (grpc.loadPackageDefinition(guestPackageDefinition) as unknown) as GuestGrpcType;
-export const guestClient = new guestPackage.guest.Guest('localhost:1234', grpc.credentials.createInsecure());
 
 export class GuestService extends AppService {
+  guestClient = new guestPackage.guest.Guest(this.baseApiUrl, grpc.credentials.createInsecure());
+
   async AddGuestToParty(payload: AddGuestRequest): Promise<GuestsResponse> {
     return new Promise((resolve, reject) => {
-      guestClient.AddGuestToParty(payload, this.metadata, handlePromise(resolve, reject));
+      this.guestClient.AddGuestToParty(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 
   async AddGuestWithLink(payload: LinkQuery): Promise<GuestResponse> {
     return new Promise((resolve, reject) => {
-      guestClient.AddGuestWithLink(payload, this.metadata, handlePromise(resolve, reject));
+      this.guestClient.AddGuestWithLink(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 
   async DeleteGuestFromParty(payload: GuestRequest): Promise<void> {
     return new Promise((resolve, reject) => {
-      guestClient.DeleteGuestFromParty(payload, this.metadata, handlePromise(resolve, reject));
+      this.guestClient.DeleteGuestFromParty(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 
   async GetAllGuestFromParty(payload: GetAllGuestFromRequest): Promise<GuestsResponse> {
     return new Promise((resolve, reject) => {
-      guestClient.GetAllGuestFromParty(payload, this.metadata, handlePromise(resolve, reject));
+      this.guestClient.GetAllGuestFromParty(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 
   async GetShareLink(payload: GuestRequest): Promise<LinkQuery> {
     return new Promise((resolve, reject) => {
-      guestClient.GetShareLink(payload, this.metadata, handlePromise(resolve, reject));
+      this.guestClient.GetShareLink(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 
   async UpdateGuest(payload: UpdateGuestRequest): Promise<GuestResponse> {
     return new Promise((resolve, reject) => {
-      guestClient.UpdateGuest(payload, this.metadata, handlePromise(resolve, reject));
+      this.guestClient.UpdateGuest(payload, this.metadata, handlePromise(resolve, reject));
     });
   }
 }

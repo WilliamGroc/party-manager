@@ -5,9 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"partymanager/server/auth"
 	"partymanager/server/models"
-	"strconv"
 
 	empty "github.com/golang/protobuf/ptypes/empty"
 	"golang.org/x/net/context"
@@ -26,16 +24,9 @@ func NewGuestService(db *gorm.DB) *GuestService {
 }
 
 func (ur *GuestService) GetAllGuestFromParty(ctx context.Context, in *GetAllGuestFromRequest) (*GuestsResponse, error) {
-	token, err := auth.GetToken(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
 
 	var party models.Party
-	ur.DB.Where(map[string]interface{}{"HostID": user_id_i, "ID": in.PartyId}).First(&party)
+	ur.DB.Where(map[string]interface{}{"HostID": in.UserId, "ID": in.PartyId}).First(&party)
 
 	if party.ID == 0 {
 		return nil, errors.New("party not found")
@@ -55,16 +46,8 @@ func (ur *GuestService) GetAllGuestFromParty(ctx context.Context, in *GetAllGues
 }
 
 func (ur *GuestService) AddGuestToParty(ctx context.Context, in *AddGuestRequest) (*GuestsResponse, error) {
-	token, err := auth.GetToken(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
-
 	var party models.Party
-	ur.DB.Where(map[string]interface{}{"host_id": user_id_i, "id": in.PartyId}).First(&party)
+	ur.DB.Where(map[string]interface{}{"host_id": in.UserId, "id": in.PartyId}).First(&party)
 
 	if party.ID == 0 {
 		return nil, errors.New("party not found")
@@ -86,21 +69,13 @@ func (ur *GuestService) AddGuestToParty(ctx context.Context, in *AddGuestRequest
 }
 
 func (ur *GuestService) UpdateGuest(ctx context.Context, in *UpdateGuestRequest) (*GuestResponse, error) {
-	token, err := auth.GetToken(ctx)
-
-	var user_id_i int = 0
-
-	if err == nil {
-		user_id_i, _ = strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
-	}
-
 	var party models.Party
 	var query = ur.DB.Model(&models.Party{}).Joins("LEFT JOIN guests on guests.party_id = parties.id")
 
-	if user_id_i == 0 {
+	if in.UserId == 0 {
 		query.Where("guests.link_token = ?", in.Link).Group("parties.id").First(&party)
 	} else {
-		query.Where("(host_id = ? OR guests.user_id = ? ) AND parties.id = ?", user_id_i, user_id_i, in.PartyId).Group("parties.id").First(&party)
+		query.Where("(host_id = ? OR guests.user_id = ? ) AND parties.id = ?", in.UserId, in.UserId, in.PartyId).Group("parties.id").First(&party)
 	}
 
 	if party.ID == 0 {
@@ -127,16 +102,8 @@ func (ur *GuestService) UpdateGuest(ctx context.Context, in *UpdateGuestRequest)
 }
 
 func (ur *GuestService) DeleteGuestFromParty(ctx context.Context, in *GuestRequest) (*empty.Empty, error) {
-	token, err := auth.GetToken(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
-
 	var party models.Party
-	ur.DB.Where(map[string]interface{}{"host_id": user_id_i, "id": in.PartyId}).First(&party)
+	ur.DB.Where(map[string]interface{}{"host_id": in.UserId, "id": in.PartyId}).First(&party)
 
 	if party.ID == 0 {
 		return nil, errors.New("party not found")
@@ -148,16 +115,8 @@ func (ur *GuestService) DeleteGuestFromParty(ctx context.Context, in *GuestReque
 }
 
 func (ur *GuestService) GetShareLink(ctx context.Context, in *GuestRequest) (*LinkQuery, error) {
-	token, err := auth.GetToken(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
-
 	var party models.Party
-	ur.DB.Where(map[string]interface{}{"host_id": user_id_i, "id": in.PartyId}).First(&party)
+	ur.DB.Where(map[string]interface{}{"host_id": in.UserId, "id": in.PartyId}).First(&party)
 
 	if party.ID == 0 {
 		return nil, errors.New("party not found")
@@ -183,17 +142,9 @@ func (ur *GuestService) GetShareLink(ctx context.Context, in *GuestRequest) (*Li
 }
 
 func (ur *GuestService) AddGuestWithLink(ctx context.Context, in *LinkQuery) (*GuestResponse, error) {
-	token, err := auth.GetToken(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	user_id_i, _ := strconv.Atoi(fmt.Sprintf("%v", token.UserId)) // Convert id to integer
-
 	var user models.User
 
-	ur.DB.Where("id = ?", user_id_i).First(&user)
+	ur.DB.Where("id = ?", in.UserId).First(&user)
 
 	if user.ID == 0 {
 		return nil, errors.New("user not found")
@@ -207,7 +158,7 @@ func (ur *GuestService) AddGuestWithLink(ctx context.Context, in *LinkQuery) (*G
 	}
 
 	guest.LinkToken = ""
-	guest.UserID = user_id_i
+	guest.UserID = int(in.UserId)
 	guest.Email = user.Email
 	guest.Username = user.Username
 

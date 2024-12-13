@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { handle } from "~/utils/handle";
 import { toast } from 'react-toastify';
 import { GuestService } from "~/services/guest/index.server";
-import { getToken } from "~/services/session.server";
+import { getUserId } from "~/services/userSession.server";
 import { PartyResponse } from "proto/party/PartyResponse";
 
 const actionPostValidator = z.object({
@@ -25,8 +25,8 @@ const actionPutValidator = z.object({
 
 export async function action({ request, params }: ActionFunctionArgs) {
   return handle(async () => {
-    const token = await getToken(request);
-    const guestService = new GuestService(token);
+    const userId = await getUserId(request);
+    const guestService = new GuestService();
 
     switch (request.method) {
       case 'POST': {
@@ -36,13 +36,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
           username: formData.get('username') as string,
         });
 
-        await guestService.AddGuestToParty({ partyId: Number(params.id), ...body });
+        await guestService.AddGuestToParty({ partyId: Number(params.id), userId, ...body });
 
         return true;
       }
       case 'DELETE': {
         const deleteData = await request.formData();
-        await guestService.DeleteGuestFromParty({ guestId: Number(deleteData.get('id')), partyId: Number(params.id) });
+        await guestService.DeleteGuestFromParty({ guestId: Number(deleteData.get('id')), partyId: Number(params.id), userId });
 
         return true;
       }
@@ -52,7 +52,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           present: putData.get('present') as Present,
         });
 
-        await guestService.UpdateGuest({ guestId: Number(putData.get('guestId')), partyId: Number(params.id), link: params.id, ...putBody });
+        await guestService.UpdateGuest({ guestId: Number(putData.get('guestId')), partyId: Number(params.id), link: params.id, userId, ...putBody });
 
         return true;
       }
