@@ -9,6 +9,8 @@ import { handle } from "~/utils/handle";
 import { PartyService } from "~/services/party/index.server";
 import { PartyResponse } from "proto/party/PartyResponse";
 import { getUserId, getUser, isAuthenticated } from "~/services/userSession.server";
+import { useWebSocket } from "~/utils/hook/websocket";
+import { useEffect } from "react";
 
 type LoaderData = {
   isAuthenticated: boolean;
@@ -49,6 +51,16 @@ export default function Events() {
   const { events, locale, isAuthenticated } = useLoaderData<LoaderData>();
   const params = useParams<{ id: string }>();
 
+  const { socket, isConnected } = useWebSocket("ws://localhost:5173");
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("message", (message) => {
+        console.log("message", message);
+      });
+    }
+  }, [socket]);
+  
   return (
     <div className={css({ display: "flex" })} >
       <div className={css({
