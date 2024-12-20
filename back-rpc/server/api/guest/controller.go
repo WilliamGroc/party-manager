@@ -158,7 +158,8 @@ func (ur *GuestService) AddGuestWithLink(ctx context.Context, in *LinkQuery) (*G
 	}
 
 	guest.LinkToken = ""
-	guest.UserID = int(in.UserId)
+	userId := int(in.UserId)
+	guest.UserID = int(userId)
 	guest.Email = user.Email
 	guest.Username = user.Username
 

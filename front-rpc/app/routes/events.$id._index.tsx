@@ -33,7 +33,7 @@ const titleStyle = css({
   marginBottom: "1rem"
 })
 
-export default function EventByIdDescription() {
+export default function () {
   const { t } = useTranslation();
   const loaderData = useRouteLoaderData<LoaderType>("routes/events.$id");
   const actionData = useActionData<typeof action>();

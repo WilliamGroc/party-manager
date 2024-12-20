@@ -8,9 +8,7 @@ import { enUS } from "date-fns/locale/en-US";
 import { handle } from "~/utils/handle";
 import { PartyService } from "~/services/party/index.server";
 import { PartyResponse } from "proto/party/PartyResponse";
-import { getUserId, getUser, isAuthenticated } from "~/services/userSession.server";
-import { useWebSocket } from "~/utils/hook/websocket";
-import { useEffect } from "react";
+import { getUserId, isAuthenticated } from "~/services/userSession.server";
 
 type LoaderData = {
   isAuthenticated: boolean;
@@ -46,28 +44,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-export default function Events() {
+export default function () {
   const { t } = useTranslation();
   const { events, locale, isAuthenticated } = useLoaderData<LoaderData>();
   const params = useParams<{ id: string }>();
 
-  const { socket, isConnected } = useWebSocket("ws://localhost:5173");
-
-  useEffect(() => {
-    if (socket) {
-      socket.on("message", (message) => {
-        console.log("message", message);
-      });
-    }
-  }, [socket]);
-  
   return (
     <div className={css({ display: "flex" })} >
       <div className={css({
         display: "flex",
         flexDir: "column",
         w: "1/5",
-        h: "calc(100vh - 56px)",
+        h: "calc(100vh - 80px)",
         overflow: "auto"
       })}>
         {
@@ -108,8 +96,7 @@ export default function Events() {
         w: "4/5",
         padding: "12",
         paddingTop: 0,
-        overflow: "auto",
-        h: "calc(100vh - 56px)"
+        h: "calc(100vh - 80px)"
       })}>
         <Outlet />
       </div>

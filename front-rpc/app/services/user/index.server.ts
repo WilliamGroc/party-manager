@@ -3,8 +3,6 @@ import * as grpc from '@grpc/grpc-js';
 import { ProtoGrpcType as UserGrpcType } from "proto/user";
 import { AppService, handlePromise } from "../service";
 import { LoginRequest } from 'proto/user/LoginRequest';
-import { RegisterRequest } from 'proto/user/RegisterRequest';
-import { UpdateRequest } from 'proto/user/UpdateRequest';
 import { UserResponse } from 'proto/user/UserResponse';
 import { LoginResponse } from 'proto/user/LoginResponse';
 import { MeRequest } from 'proto/user/MeRequest';

@@ -1,6 +1,5 @@
 import { LoaderFunctionArgs, redirect } from "react-router";
 import { PartyService } from "~/services/party/index.server";
-import { getUserId } from "~/services/userSession.server";
 import { handle } from "~/utils/handle";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {

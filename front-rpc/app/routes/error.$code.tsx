@@ -5,7 +5,7 @@ export const loader = ({ params }: LoaderFunctionArgs) => {
   return { code: params.code };
 }
 
-export default function ErrorPage() {
+export default function () {
   const dataLoader = useLoaderData<typeof loader>();
   const { t } = useTranslation();
   return (

@@ -48,7 +48,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 }
 
-export default function UpdateEvent() {
+export default function () {
   const { t } = useTranslation();
   const data = useLoaderData<LoaderType>();
   const actionData = useLoaderData<DataResponse<null>>();

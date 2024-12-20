@@ -5,8 +5,8 @@ import express from "express";
 import morgan from "morgan";
 import { ServerBuild } from "react-router";
 import { createServer } from "http";
-import { Server } from "socket.io";
 import path from "path";
+import { SocketServer } from "./websocket.js";
 
 const MODE = process.env.NODE_ENV;
 const BUILD_DIR = path.join(process.cwd(), "server/build");
@@ -25,23 +25,7 @@ const app = express();
 // create an httpServer from the Express app
 const httpServer = createServer(app);
 
-// and create the socket.io server from the httpServer
-const io = new Server(httpServer, {
-  transports: ["websocket"], // only websocket transport
-});
-
-// then list to the connection event and get a socket object
-io.on("connection", (socket) => {
-  console.log("A user connected");
-
-  socket.emit("message", "Welcome to the chat");
-
-  socket.on("message", (data) => {
-    console.log("Received message:", data);
-    // Broadcast the message to all connected clients
-    io.emit("message", data);
-  });
-});
+new SocketServer(httpServer);
 
 app.use(compression());
 

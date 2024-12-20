@@ -3,15 +3,14 @@ import { ActionFunctionArgs, Form, useFetcher, useRouteLoaderData, useSubmit } f
 import { css } from "styled-system/css";
 import { z } from "zod";
 import { GuestRow } from "~/components/guestRow";
-import { loader as eventIdLoader, LoaderType } from "~/routes/events.$id";
-import { Guest, Present } from "~/models/guest";
+import { LoaderType } from "~/routes/events.$id";
+import { Present } from "~/models/guest";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { handle } from "~/utils/handle";
 import { toast } from 'react-toastify';
 import { GuestService } from "~/services/guest/index.server";
 import { getUserId } from "~/services/userSession.server";
-import { PartyResponse } from "proto/party/PartyResponse";
 
 const actionPostValidator = z.object({
   username: z.string(),
@@ -21,7 +20,6 @@ const actionPostValidator = z.object({
 const actionPutValidator = z.object({
   present: z.string(),
 });
-
 
 export async function action({ request, params }: ActionFunctionArgs) {
   return handle(async () => {
@@ -61,7 +59,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 }
 
-export default function EventById() {
+export default function () {
   const { t } = useTranslation();
   const loaderData = useRouteLoaderData<LoaderType>("routes/events.$id");
   const submit = useSubmit();

@@ -39,7 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
   })
 }
 
-export default function NewEvent() {
+export default function () {
   const { t } = useTranslation();
   const actionData = useLoaderData<DataResponse<null>>();
   const submit = useSubmit();

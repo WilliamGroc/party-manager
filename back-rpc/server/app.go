@@ -7,6 +7,7 @@ import (
 	"os"
 	"partymanager/server/api/guest"
 	"partymanager/server/api/party"
+	"partymanager/server/api/tchat"
 	"partymanager/server/api/user"
 	"partymanager/server/models"
 	"time"
@@ -51,7 +52,7 @@ func (a *App) Run() {
 	a.DB = db
 
 	// Migrate the schema
-	db.AutoMigrate(&models.User{}, &models.Party{}, &models.Guest{})
+	db.AutoMigrate(&models.User{}, &models.Party{}, &models.Guest{}, &models.Tchat{})
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", 1234))
 	if err != nil {
@@ -65,6 +66,7 @@ func (a *App) Run() {
 	guest.RegisterGuestServer(grpcServer, guest.NewGuestService(a.DB))
 	party.RegisterPartyServer(grpcServer, party.NewPartyService(a.DB))
 	user.RegisterUserServer(grpcServer, user.NewUserService(a.DB))
+	tchat.RegisterTchatServer(grpcServer, tchat.NewTchatService(a.DB))
 
 	reflection.Register(grpcServer)
 

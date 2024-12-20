@@ -29,7 +29,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-export default function Auth() {
+export default function () {
   const submit = useSubmit();
 
   useEffect(() => {

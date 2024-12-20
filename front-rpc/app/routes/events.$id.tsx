@@ -8,8 +8,15 @@ import { PartyService } from "~/services/party/index.server";
 import { getUserId, isAuthenticated } from "~/services/userSession.server";
 import { handle } from "~/utils/handle";
 import { eventSessionStorage } from "~/services/eventSession.server";
+import { TchatService } from "~/services/tchat/index.server";
+import { Message } from "proto/tchat/Message";
 
-export type LoaderType = { event: PartyResponse, isOwner: boolean, userId: number };
+export type LoaderType = {
+  event: PartyResponse,
+  isOwner: boolean,
+  userId: number,
+  messages: Message[]
+};
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   return handle<Response | { event: PartyResponse, isOwner: boolean, userId: number }>(async () => {
@@ -19,6 +26,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
     const partyService = new PartyService();
     const guestService = new GuestService();
+    const tchatService = new TchatService();
 
     if (searchParams.has('invitation')) {
       const event = await partyService.GetSharedParty({ link: params.id });
@@ -43,16 +51,18 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     }
 
     const event = await partyService.GetParty({ id: Number(params.id), userId });
+    const { messages } = await tchatService.GetMessages({ partyId: Number(params.id!), userId });
 
     return {
       event,
       isOwner: event.hostId === userId,
-      userId: userId || 0
+      userId: userId || 0,
+      messages
     };
   });
 }
 
-export default function EventById() {
+export default function () {
   const { t } = useTranslation();
   const loaderData = useLoaderData<LoaderType>();
   const location = useLocation();
@@ -67,6 +77,10 @@ export default function EventById() {
     name: `${t('Guests')} (${loaderData.event.guests?.length})`,
     path: `guests${location.search}`,
     index: 'guests'
+  }, {
+    name: `${t('Tchat')}`,
+    path: `tchat${location.search}`,
+    index: 'tchat'
   }];
 
   if (!TABS.map(tab => tab.path).includes(currentTab)) {
