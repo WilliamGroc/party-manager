@@ -7,7 +7,7 @@ import { GetMessagesResponse } from "proto/tchat/GetMessagesResponse";
 import { AddMessageRequest } from "proto/tchat/AddMessageRequest";
 import { AddMessageResponse } from "proto/tchat/AddMessageResponse";
 
-const tchatPackageDefinition = protoLoader.loadSync('../back-rpc/server/api/tchat/tchat.proto',
+const tchatPackageDefinition = protoLoader.loadSync('./proto/tchat.proto',
   {
     keepCase: true,
     enums: String,

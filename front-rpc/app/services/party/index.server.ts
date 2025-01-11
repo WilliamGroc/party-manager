@@ -10,7 +10,7 @@ import { PartiesResponse } from 'proto/party/PartiesResponse';
 import { UpdatePartyRequest } from 'proto/party/UpdatePartyRequest';
 import { GetAllRequest } from 'proto/party/GetAllRequest';
 
-const partyPackageDefinition = protoLoader.loadSync('../back-rpc/server/api/party/party.proto',
+const partyPackageDefinition = protoLoader.loadSync('./proto/party.proto',
   {
     keepCase: true,
     enums: String,

@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "prepare": "panda codegen",
-    "build": "react-router build",
-    "dev": "tsx server/index.ts",
+    "clear-proto": "rimraf ./proto && mkdir ./proto",
+    "move-proto": "pnpm clear-proto && cp -R ../back-rpc/server/api/**/*.proto ./proto && sed -i 's/..\\/guest\\/guest.proto/guest.proto/g' ./proto/party.proto",
+    "build-proto": "pnpm move-proto && proto-loader-gen-types -I ./proto --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=proto/ ./proto/*.proto",
+    "build": "pnpm build-proto && react-router build",
+    "dev": "pnpm build-proto && tsx server/index.ts",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "cross-env NODE_ENV=production node ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc",
-    "proto": "proto-loader-gen-types -I ../back-rpc --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=proto/ ../back-rpc/server/api/**/*.proto"
+    "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
     "@grpc/grpc-js": "1.12.2",
@@ -65,6 +67,7 @@
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react": "7.37.2",
     "eslint-plugin-react-hooks": "5.0.0",
+    "rimraf": "^6.0.1",
     "tsx": "^4.19.2",
     "typescript": "5.6.3",
     "vite": "5.4.10",

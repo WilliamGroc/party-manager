@@ -11,7 +11,7 @@ import { UpdateGuestRequest } from 'proto/guest/UpdateGuestRequest';
 import { GuestResponse } from 'proto/guest/GuestResponse';
 
 
-const guestPackageDefinition = protoLoader.loadSync('../back-rpc/server/api/guest/guest.proto',
+const guestPackageDefinition = protoLoader.loadSync('./proto/guest.proto',
   {
     keepCase: true,
     enums: String,

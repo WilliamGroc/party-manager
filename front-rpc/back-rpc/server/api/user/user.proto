@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package user;
+option go_package = "partymanager/server/api/user;user";
+
+service User {
+  rpc Login (LoginRequest) returns (LoginResponse) {}
+  rpc GetMe (MeRequest) returns (UserResponse) {}
+}
+
+message LoginRequest {
+  string email = 1;
+  string username = 2;
+}
+
+message MeRequest {
+  uint32 id = 1;
+}
+
+message LoginResponse {
+  uint32 id = 1;
+  string email = 2;
+}
+
+message UserResponse {
+  uint32 id = 1;
+  string email = 2;
+  string username = 3;
+}
+

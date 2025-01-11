@@ -7,7 +7,7 @@ import { UserResponse } from 'proto/user/UserResponse';
 import { LoginResponse } from 'proto/user/LoginResponse';
 import { MeRequest } from 'proto/user/MeRequest';
 
-const userPackageDefinition = protoLoader.loadSync('../back-rpc/server/api/user/user.proto',
+const userPackageDefinition = protoLoader.loadSync('./proto/user.proto',
   {
     keepCase: true,
     enums: String,
